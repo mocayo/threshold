@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_Water_LevelDao">
+	<resultMap type="t_water_level" id="t_water_level">
+		<id property="dt" column="dt"/>
+		<result property="wl" column="wl"/>
+	</resultMap>
+	
+	<select id="getWL_latest" resultType="t_water_level">
+		select top 1  UPLevel as WL , UPLevelDt as DT  from xwplat.dbo.B_HUBENV order by dt desc 
+	</select>
+	
+	<select id="getWL" parameterType="map" resultType="t_water_level">
+		select top 1  UPLevel as WL , UPLevelDt as DT  from xwplat.dbo.B_HUBENV 
+		where dt = #{dt}
+		order by dt desc 
+	</select>
+	
+	<insert id="convertWL"  parameterType="String" >
+	    insert into LCRiver_xwdh_3.dbo.T_WATERLEVEL 
+	    (wl,dt,isRising)
+	    select wl,dt,(case when wl <![CDATA[ > ]]> avgV then 1 else 0 end) isRising from 
+	    ( select m.wl,m.dt,tmp.avgV from (select avg(UPLEVEL) as WL,CONVERT(VARCHAR(10), UPLEVELDT ,23 ) as DT 
+	    	from xwplat.dbo.B_HUBENV where CONVERT(VARCHAR(10), UPLEVELDT ,23 ) = #{dt} 
+	    	group by CONVERT(VARCHAR(10), UPLEVELDT ,23 ))m,
+	    	(SELECT avg(WL) avgV from 
+	    		(select top 10 AVG (UPLEVEL) as WL ,CONVERT(VARCHAR(10), UPLEVELDT ,23 ) as DT 
+	    		from xwplat.dbo.B_HUBENV where CONVERT(VARCHAR(10), UPLEVELDT ,23 ) <![CDATA[ < ]]> #{dt} group by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) 
+	    		order by DT desc)tp 
+		)tmp  )t
+	</insert>
+	
+</mapper>

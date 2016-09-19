@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ICommonPreHandleResultDao">
+	<resultMap type="common_prehandle_result" id="common_prehandle_result">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<id property="result_id" column="result_id"/>
+		<result property="handle_time" column="handle_time"/>
+		<result property="r1" column="r1"/>
+		<result property="r2" column="r2"/>
+		<result property="r3" column="r3"/>
+		<result property="handle_r1_result" column="handle_r1_result"/>
+		<result property="handle_r2_result" column="handle_r2_result"/>
+		<result property="handle_r3_result" column="handle_r3_result"/>
+		<result property="people_r1_handle" column="people_r1_handle"/>
+		<result property="people_r2_handle" column="people_r2_handle"/>
+		<result property="people_r3_handle" column="people_r3_handle"/>
+		<result property="total_result" column="total_result"/>
+	</resultMap>
+	
+	<insert id="add_res" parameterType="map" statementType="STATEMENT">
+		insert into LCRiver_xwdh_2.dbo.${tableName}_RES
+		([instr_no],[dt],[result_id],[handle_time],
+		[r1],[handle_${type}_result],[people_${type}_handle],[total_result])
+		values ('${instr_no}','${dt}','${result_id}','${handle_time}',
+		${val},${handle_result},${people_handle},${total_result})
+	</insert>
+	<update id="update_res" parameterType="map" statementType="STATEMENT">
+		update LCRiver_xwdh_2.dbo.${tableName}_RES 
+		set ${type}=${val},handle_${type}_result=${handle_result},people_${type}_handle = ${people_handle},
+			total_result=${total_result}
+		where instr_no='${instr_no}' and dt='${dt}' and result_id='${result_id}'
+	</update>
+	
+	<select id="getAllCountByBatchId" parameterType="map" resultType="int" statementType="STATEMENT"> 
+		SELECT count(*) FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id ='${batchId}'
+	</select>
+	
+	<select id="getExceptionCountByBatchId" parameterType="map" resultType="int" statementType="STATEMENT"> 
+		SELECT count(*) FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id = '${batchId}'
+			and total_result=0
+	</select>
+	
+	<select id="getAllResultByResultId" parameterType="map" resultMap="common_prehandle_result"
+			statementType="STATEMENT">
+		select * from  LCRiver_xwdh_2.dbo.${tableName}_RES where result_id = '${batchId}'
+	</select>
+	
+	<delete id="deletePreHandleResultByBatchId" parameterType="map" statementType="STATEMENT">
+		delete from LCRiver_xwdh_2.dbo.${tableName}_RES where result_id = '${batchId}'
+	</delete>
+	
+	
+	<select id="getAllPreHandleResByBatchId" parameterType="map" resultMap="common_prehandle_result" statementType="STATEMENT">
+		SELECT TOP ${len} * FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id = '${batchId}'
+			and instr_no+CONVERT(varchar(100), dt, 120)+result_id >
+				(
+					SELECT ISNULL(MAX(pid),0) from (
+						SELECT TOP ${start} (instr_no+CONVERT(varchar(100), dt, 120)+result_id) as pid 
+							FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id = '${batchId}' 
+							order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+					) A
+	 			)
+ 				order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+	</select>
+	
+	<select id="getNormalPreHandleResByBatchId" parameterType="map" resultMap="common_prehandle_result"
+			statementType="STATEMENT">
+		SELECT TOP ${len} * FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id = '${batchId}' 
+		 	and total_result!=0
+				and instr_no+CONVERT(varchar(100), dt, 120)+result_id >
+				(
+					SELECT ISNULL(MAX(pid),0) from (
+						SELECT TOP ${start} (instr_no+CONVERT(varchar(100), dt, 120)+result_id) as pid FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id ='${batchId}' 
+		 				and  total_result!=0 order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+					) A
+	 			)
+ 				order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+	</select>
+	
+	<select id="getNormalCountByBatchId" parameterType="map" resultType="int" statementType="STATEMENT"> 
+		SELECT count(*) FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id = '${batchId}'
+			and total_result!=0
+	</select>
+	
+	<select id="getExceptionPreHandleResByBatchId" parameterType="map" resultMap="common_prehandle_result" statementType="STATEMENT">
+		SELECT TOP ${len} * FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id = '${batchId}' 
+		 	and total_result=0  and instr_no+CONVERT(varchar(100), dt, 120)+result_id >
+				(
+					SELECT ISNULL(MAX(pid),0) from (
+						SELECT TOP ${start} (instr_no+CONVERT(varchar(100), dt, 120)+result_id) as pid FROM LCRiver_xwdh_2.dbo.${tableName}_RES where result_id ='${batchId}' 
+		 				and total_result=0 order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+					) A
+	 			)
+ 				order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+	</select>
+	
+	<update id="modifyPreHandleRes" parameterType="map" statementType="STATEMENT">
+		update LCRiver_xwdh_2.dbo.${tableName}_RES 
+		set people_r${value_type}_handle = ${modify_result},total_result=${total_result}
+		where result_id = '${batchId}' and dt='${dt}' and instr_no='${instr_no}'
+	</update>
+	
+	<select id="getPreHandleResByMap" parameterType="map" resultMap="common_prehandle_result" statementType="STATEMENT">
+		select * from LCRiver_xwdh_2.dbo.${tableName}_RES 
+		where result_id = '${batchId}' and dt='${dt}' and instr_no='${instr_no}'
+	</select>
+	
+	<select id=""></select>
+</mapper>

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+
+<struts>
+
+	<constant name="struts.multipart.saveDir" value="/temp" />
+
+	<package name="modelAdmin" namespace="/site/pages"
+		extends="struts-default">
+		
+		<action name="getPremodelToAdd" class="Action.GetModelInfo" method="getPremodelToAdd"></action>
+		<action name="getPtmmodelToAdd" class="Action.GetModelInfo" method="getPtmmodelToAdd"></action>
+		<action name="updateAddPremodel" class="Action.GetModelInfo" method="updateAddPremodel"></action>
+		<action name="updateAddPtmmodel" class="Action.GetModelInfo" method="updateAddPtmmodel"></action>
+
+		<action name="premodelinfo" class="Action.ModelInfoAction"
+			method="getPredictModelInfo">
+			<result name="success">/site/pages/premodel.jsp</result>
+		</action>
+
+		<action name="ptmmodelinfo" class="Action.ModelInfoAction"
+			method="getPretreatmentModelInfo">
+			<result name="success">/site/pages/ptmmodel.jsp</result>
+		</action>
+
+		<action name="addpremodel" class="Action.ModelInfoAction"
+			method="addModel">
+			<result name="addsuccess">/site/pages/addpremodel.jsp</result>
+		</action>
+
+		<action name="addptmmodel" class="Action.ModelInfoAction"
+			method="addModel">
+			<result name="addsuccess">/site/pages/addptmmodel.jsp</result>
+		</action>
+
+		<action name="delpremodel" class="Action.ModelInfoAction"
+			method="delModel">
+			<result name="delsuccess" type="redirectAction">premodelinfo</result>
+		</action>
+
+		<action name="delptmmodel" class="Action.ModelInfoAction"
+			method="delModel">
+			<result name="delsuccess" type="redirectAction">ptmmodelinfo</result>
+		</action>
+
+		<action name="updatepremodelinput" class="Action.ModelInfoAction"
+			method="updateInputModel">
+			<result name="success">/site/pages/updatepremodel.jsp</result>
+		</action>
+
+		<action name="updateptmmodelinput" class="Action.ModelInfoAction"
+			method="updateInputModel">
+			<result name="success">/site/pages/updateptmmodel.jsp</result>
+		</action>
+
+		<action name="updatepremodel" class="Action.ModelInfoAction"
+			method="updateModel">
+			<result name="updatesuccess" type="redirectAction">premodelinfo</result>
+		</action>
+
+		<action name="updateptmmodel" class="Action.ModelInfoAction"
+			method="updateModel">
+			<result name="updatesuccess" type="redirectAction">ptmmodelinfo</result>
+		</action>
+
+		<action name="addpremodelpoint" class="Action.ConfModelPoint"
+			method="addPreModelPoint">
+			<result name="confsuccess" type="redirectAction">showprepoint</result>
+		</action>
+
+		<action name="addptmmodelpoint" class="Action.ConfModelPoint"
+			method="addPtmModelPoint">
+			<result name="confsuccess" type="redirectAction">showptmpoint</result>
+		</action>
+
+		<action name="showprepoint" class="Action.ConfModelPoint"
+			method="showPreModelPoint">
+			<result>/site/pages/showprepoint.jsp</result>
+		</action>
+
+		<action name="showptmpoint" class="Action.ConfModelPoint"
+			method="showPtmModelPoint">
+			<result>/site/pages/showptmpoint.jsp</result>
+		</action>
+
+		<action name="addprepointInput" class="Action.ConfModelPoint"
+			method="addPrePointInput">
+			<result>/site/pages/addprepoint.jsp</result>
+		</action>
+
+		<action name="addptmpointInput" class="Action.ConfModelPoint"
+			method="addPtmPointInput">
+			<result>/site/pages/addptmpoint.jsp</result>
+		</action>
+
+		<action name="confpremodelpoint" class="Action.ConfModelPoint"
+			method="confPreModelPoint">
+			<result>/site/pages/confprepoint.jsp</result>
+		</action>
+
+		<action name="confptmmodelpoint" class="Action.ConfModelPoint"
+			method="confPtmModelPoint">
+			<result>/site/pages/confptmpoint.jsp</result>
+		</action>
+
+		<action name="addconfpremodel" class="Action.ConfModelPoint"
+			method="addConfPrePoint">
+			<result type="redirectAction">showprepoint</result>
+		</action>
+
+		<action name="addconfptmmodel" class="Action.ConfModelPoint"
+			method="addConfPtmPoint">
+			<result type="redirectAction">showptmpoint</result>
+		</action>
+
+		<action name="addpreexcel" class="Action.ConfModelPoint"
+			method="addPrePointFromExcel">
+			<result type="redirectAction">showprepoint</result>
+		</action>
+		
+		<action name="addptmexcel" class="Action.ConfModelPoint"
+			method="addPtmPointFromExcel">
+			<result type="redirectAction">showptmpoint</result>
+		</action>
+		
+		<action name="getPoints" class="Action.ConfModelPoint" method="getPoints"></action>
+		
+	</package>
+	
+	<package name="predict" namespace="/site/predict" extends="struts-default">
+		<action name="singlePre" class="Action.ManualSinglePredictAction"></action>
+		<action name="autoSinglePreKalman" class="util.DataPredictAutomatic" method="calculateKalman"></action>
+		<!-- <action name="autoSinglePreByDay" class="util.DataPredictAutomatic" method="executeByDay"></action> -->
+		<action name="workstateTest" class="util.DataPredictAutomatic" method="workstateTest"></action>
+		
+		<action name="autoSinglePreByDay" class="util.DataPredictAutomatic"></action>
+		<action name="executeByDay" class="util.DataPredictAutomatic" method="executeByDay"></action>
+		<action name="autoPreprocess" class="util.DataPredictAutomatic" method="autoPreprocessByDay"></action>
+		<action name="updateIsBest" class="util.DataPredictAutomatic" method="updateIsBest"></action>
+		
+		<action name="getPtmModel" class="Action.GetModelInfo" method="getPtmModel"></action>
+		<action name="getPreModel" class="Action.GetModelInfo" method="getPreModel"></action>
+		
+		<action name="sinPreAutoByPage" class="Action.SinForcastResult" method="sinPreAutoByPage"></action>
+		<action name="getChartData" class="Action.GetSinglePreInfo" method="getDrawChartData"></action>
+		<action name="getTestInfo" class="Action.SinForcastResult" method="getTestInfo"></action>
+		
+		<action name="getAllSinPreAuto" class="Action.SinForcastResult" method="getAllSinPreAuto"></action>
+		
+		<action name="getDetailInfoData" class="Action.GetSinglePreInfo" method="getDetailInfoData"></action>
+		<action name="getDetailInfoDataCount" class="Action.GetSinglePreInfo" method="getDetailInfoDataCount"></action>
+		
+		<action name="getComp" class="Action.GetPointInfo" method="getComponent"></action> 
+		<action name="getSinglePre" class="Action.GetPointInfo" method="getSinglePre"></action> 
+		<action name="getPreHandleCount" class="Action.GetPointInfo" method="getPreHandleCount"></action> 
+		<action name="getPreHandleTimeCount" class="Action.GetPointInfo" method="getPreHandleTimeCount"></action> 
+		<action name="getPreHandlePointCount" class="Action.GetPointInfo" method="getPreHandlePointCount"></action> 
+		<action name="updateConfHis" class="Action.ConfHisVal" method="updateConf"></action>
+		<action name="getLSTZZInfo" class="Action.ConfHisVal" method="getLSTZZInfo"></action>
+		<action name="getLSTZZ_RES" class="Action.ConfHisVal" method="getLSTZZ_RES"></action>
+		<action name="getLSTZZ_RES_5" class="Action.ConfHisVal" method="getLSTZZ_RES_5"></action>
+		<action name="getWL" class="Action.ConfHisVal" method="getWL"></action>
+		<action name="getLSTZZInfoCount" class="Action.ConfHisVal" method="getLSTZZInfoCount"></action>
+		<action name="getConfHis" class="Action.ConfHisVal" method="getConf">
+			<result>/site/predict/confHisVal.jsp</result>
+		</action>
+		
+		<action name="getErrateByPoint" class="Action.GetSinglePreInfo" method="getErrateByPoint"></action>
+		<action name="getComponentByPoint" class="Action.GetPointInfo" method="getComponentByPoint"></action>
+		
+		<action name="getPreHandleResult2" class="Action.GetPreHandleResult" method="getPreHandleResult2"></action>
+	</package>
+	
+	<package name="index" namespace="/site/index" extends="struts-default" >
+		<action name="getKeyPoints" class="Action.GetSinglePreInfo" method="getKeyPoints"></action>
+		<action name="getErrorPoints" class="Action.GetSinglePreInfo" method="getErrorPoints"></action>
+		<action name="getErrorPoints2" class="Action.GetSinglePreInfo" method="getErrorPoints2"></action>
+		<!-- <action name="getAllErrorPoints" class="Action.GetSinglePreInfo" method="getAllErrorPoints"></action> -->
+		<action name="getMaxDate" class="Action.GetSinglePreInfo" method="getMaxDate"></action>
+		<action name="getThresholdDay" class="Action.GetSinglePreInfo" method="getThresholdDay"></action>
+		<action name="getErrorPointsCount" class="Action.GetSinglePreInfo" method="getErrorPointsCount"></action>
+	</package>
+	
+	<package name="conf" namespace="/site/conf" extends="struts-default" >
+		<action name="getConfInfo" class="Action.ConfHisVal" method="getConfInfo"></action>
+		<action name="updateConfHis" class="Action.ConfHisVal" method="updateConf"></action>
+		<action name="getThresoldConf" class="Action.ThresholdConfAction" method="getThresoldConf"></action>
+		<action name="updateThresholdConf" class="Action.ThresholdConfAction" method="updateThresholdConf"></action>
+		<action name="updateKalMan" class="Action.ThresholdConfAction" method="updateKalMan"></action>
+	</package>
+	
+</struts>

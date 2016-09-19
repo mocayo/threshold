@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Dao.IPointInfoDao">
+	<resultMap type="pointInfo" id="pointInfo">
+		<result property="instr_no" column="instr_no" />
+		<result property="oName" column="oName" />
+		<result property="oName1" column="oName1" />
+		<result property="oId" column="oId" />
+		<result property="monitorItem" column="monitorItem" />
+		<result property="monitorItemName" column="monitorItemName" />
+		<result property="isWhere" column="isWhere" />
+		<result property="importantPoint" column="importantPoint" />
+		<result property="rm1" column="rm1" />
+		<result property="rm2" column="rm2" />
+	</resultMap>
+	<select id="getIsWhereByMonitorItem" parameterType="string"
+		resultType="string">
+		SELECT DISTINCT iswhere FROM LCRiver_xwdh_1.dbo.PointInfo
+		WHERE MonitorItem=#{monitorItem}
+	</select>
+	<select id="getPoint" parameterType="map" resultType="string">
+		select distinct instr_no FROM LCRiver_xwdh_1.dbo.PointInfo
+		where MonitorItem=#{title} and isCaculated = 1
+		<if test="dam!=null">
+			and IsWhere=#{dam}
+		</if>
+	</select>
+	<select id="getTable" parameterType="map" resultType="string">
+		select
+		MonitorItem FROM LCRiver_xwdh_1.dbo.PointInfo
+		where instr_no=#{instr_no}
+	</select>
+
+	<select id="getBasicItem" resultType="string">
+		SELECT
+			id + '#' + name
+		FROM
+			LCRiver_xwdh_1.dbo.Monitor_Dict
+		WHERE
+			type = '基本部位'
+	</select>
+	
+	<select id="getMonitor" parameterType="map" resultType="string">
+		SELECT
+			id + '#' + name
+		FROM
+			LCRiver_xwdh_1.dbo.Monitor_Dict
+		WHERE
+			id IN (
+				SELECT DISTINCT
+					monitorItem
+				FROM
+					LCRiver_xwdh_1.dbo.Monitor_Map
+				WHERE
+					basicId = #{basicId}
+			)
+	</select>
+	
+	<select id="getInstrType" parameterType="map" resultType="string">
+		SELECT
+			id + '#' + name
+		FROM
+			LCRiver_xwdh_1.dbo.Monitor_Dict
+		WHERE
+			id IN (
+				SELECT DISTINCT
+					instr_type
+				FROM
+					LCRiver_xwdh_1.dbo.Monitor_Map
+				WHERE
+					basicId = #{basicId}
+				AND monitorItem = #{monitorItem}
+			)
+	</select>
+	
+	<select id="getObservePoints" parameterType="map" resultType="string">
+		SELECT
+			[DesignCode] + '#' + dt.[table]
+		FROM
+			LCRiver_xwdh_1.dbo.DefInsSort ds,
+			LCRiver_xwdh_1.dbo.DefTableType dt
+		WHERE
+			mapId IN (
+				SELECT DISTINCT
+					id
+				FROM
+					LCRiver_xwdh_1.dbo.Monitor_Map
+				WHERE
+					basicId = #{basicId}
+				AND monitorItem = #{monitorItem}
+				AND instr_type = #{instr_type}
+			)
+		AND ds.[type] = dt.[type]
+		<!-- SELECT
+			DesignCode 
+		FROM
+			LCRiver_xwdh_1.dbo.DefInsSort
+		WHERE
+			mapId IN (
+				SELECT DISTINCT
+					id
+				FROM
+					LCRiver_xwdh_1.dbo.Monitor_Map
+				WHERE
+					basicId = #{basicId}
+				AND monitorItem = #{monitorItem}
+				AND instr_type = #{instr_type}
+			) -->
+	</select>
+	
+	<select id="getComponent" parameterType="map" resultType="string">
+		SELECT
+			R1 + '#' + R2 + '#' + R3
+		FROM
+			LCRiver_xwdh_1.dbo.MonitorItemType
+		WHERE
+			type IN (
+				SELECT
+					type
+				FROM
+					LCRiver_xwdh_1.dbo.DefInsSort
+				WHERE
+					DesignCode = #{point}
+			)
+		<!-- SELECT
+			R1 + '#' + R2 + '#' + R3
+		FROM
+			LCRiver_xwdh_1.dbo.MonitorItemType
+		WHERE
+			TABLE_NAME = #{table_name} -->
+	</select>
+	
+</mapper>

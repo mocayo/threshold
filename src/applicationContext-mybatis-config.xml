@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:aop="http://www.springframework.org/schema/aop"
+     xmlns:tx="http://www.springframework.org/schema/tx"
+     xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<bean id="localMapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+		<property name="basePackage" value="Dao" />
+	</bean>
+
+	<bean id="localMybatisSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="localDataSource" />
+		<property name="mapperLocations" value="classpath*:sqlMapper/*.xml" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+	</bean>
+	
+	<bean id="testDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ITestDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="Test" class="Action.TestAction" scope="prototype">	
+    </bean>
+    
+ 	<bean id="t_zb_plDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_ZB_PLDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="SinglePointScreening" class="Action.SinglePointScreening" scope="prototype"></bean>
+	<bean id="MultiPointScreening" class="Action.MultiPointScreening" scope="prototype"></bean>
+	
+	<bean id="model_paraDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IMODEL_PARADao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="ParameterQuery" class="Action.ParameterQuery" scope="prototype"></bean>
+    <bean id="ModifyModelPara" class="Action.ModifyModelPara" scope="prototype"></bean>
+    
+    <bean id="dealTimeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_DEAL_TIMEDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    
+    <bean id="model_nameDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IMODEL_NAMEDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="ModelQuery" class="Action.ModelQuery" scope="prototype"></bean>
+    
+    <bean id="single_predictionDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ISINGLE_PREDICTIONDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+	<bean id="SinForcast" class="Action.SinForcast" scope="prototype"></bean>
+	<bean id="SinForcastResult" class="Action.SinForcastResult" scope="prototype"></bean>
+	<bean id="it_zb_plDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_ZB_PLDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="sin_preAutoDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ISIN_PRE_AUTODao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    
+    <bean id="GetModel" class="Action.GetModel" scope="prototype"></bean>
+    
+    <bean id="table_typeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ITABLE_TYPEDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="GetTableType" class="Action.GetTableType" scope="prototype"></bean>
+    <bean id="GetMonitorItemType" class="Action.GetMonitorItemType" scope="prototype"></bean>
+    <bean id="ins_sortDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IINS_SORTDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="GetInsSort" class="Action.GetInsSort" scope="prototype"></bean>
+    <bean id="ModifyModelState" class="Action.ModifyModelState" scope="prototype"></bean>
+    
+    <bean id="outLierDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_OUTLIERDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="DataProcess" class="Action.DataProcess" scope="prototype"></bean>
+    
+    <bean id="deftabletypeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IDEFTABLETYPEDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="GetMonitorItems" class="Action.GetMonitorItems" scope="prototype"></bean>
+    
+    <bean id="definssortDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IDEFINSSORTDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="t_zb_pl_forehandleDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_ZB_PL_ForeHandleDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    
+	<bean id="dataPredictedDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    	<property name="mapperInterface" value="Dao.IDataPredictedDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" /> 
+    </bean>
+	<bean id="lstzzParasDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    	<property name="mapperInterface" value="Dao.ILstzzParasDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" /> 
+    </bean>
+    <bean id="preData" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    	<property name="mapperInterface" value="Dao.IPRERESULTDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" /> 
+    </bean>
+     <bean id="GetForeHandlePoint" class="Action.GetForeHandlePoint" scope="prototype"></bean>
+     <bean id="ModifyForeHandleResult" class="Action.ModifyForeHandleResult" scope="prototype"></bean>
+     <bean id="QueryForeHandleModifyResult" class="Action.QueryForeHandleModifyResult" scope="prototype"></bean>
+     
+     
+     
+     <bean id="t_zb_pl2SSJSDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_ZB_PL2SSJSDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    
+    <bean id="getAllT_ZB_PL2SSJS" class="Action.GetAllT_ZB_PL2SSJS" scope="prototype"></bean>
+    
+    <bean id="t_zb_pl_resDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_ZB_PL_ResDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="getLatestTime" class="Action.DataPreDealAction" scope="prototype"></bean>
+    <bean id="preProcessResult" class="Action.PreProcessResult" scope="prototype"></bean>
+    <bean id="t_zb_pl_finalDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_ZB_PL_FINALDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    
+    <!-- 水位 -->
+    <bean id="t_water_levelDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IT_Water_LevelDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    <bean id="getWaterLevel" class="Action.WaterLevel" scope="prototype"></bean>
+    
+    <!-- 日志 -->
+    <bean id="logDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IDefLogDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    <bean id="getLogDate" class="Action.LogAction" scope="prototype"></bean>
+    <bean id="getLogByDate" class="Action.LogAction" scope="prototype"></bean>
+    <bean id="getLogByTime" class="Action.LogAction" scope="prototype"></bean>
+    
+    <!--预处理通用方法 -->
+    <bean id="commonPreHandleDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ICommonPreHandleDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    <bean id="commonPreHandleFinalDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ICommonPreHandleFinalDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    <bean id="commonPreHandleResultDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ICommonPreHandleResultDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    <bean id="commonPreHandleBatchDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ICommonPreHandleBatchDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    <bean id="monitorItemTypeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IMonitorItemTypeDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    <bean id="pointInfoDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IPointInfoDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>   
+    <bean id="commonPredictDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.ICommonPredictDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+    <bean id="midCharacterDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IMidCharacteristicDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean> 
+    <bean id="dtCharacterDao" class="org.mybatis.spring.mapper.MapperFactoryBean">  
+        <property name="mapperInterface" value="Dao.IDtCharacteristicDao"/>  
+        <property name="sqlSessionFactory" ref="localMybatisSessionFactory" />  
+    </bean>
+	
+	<!--*********************************************************************-->
+	<bean id="modelDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.IModelInfoDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	<bean id="modelinfo" class="Action.ModelInfoAction" scope="prototype">
+	</bean>
+	
+	<bean id="modelPointDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.IModelPointDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	<bean id="modelpoint" class="Action.ConfModelPoint" scope="prototype">
+	</bean>
+	
+	<bean id="confhisvalDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.IConfHisValDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	<bean id="confhisval" class="Action.ConfHisVal" scope="prototype">
+	</bean>
+	
+	<bean id="point_DetailedResultDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.PointDetailedResultDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	
+	<bean id="lstzz_InfoDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.LSTZZInfoDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	
+	<bean id="thresholdDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.IThresholdConfDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	
+	<bean id="ceNodeMetMemDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.IW_CENodeMetMemDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	
+	<bean id="dataCollectionDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.IDataCollectionDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	
+	<bean id="sigamaDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="Dao.ISigamaDao" />
+		<property name="sqlSessionFactory" ref="localMybatisSessionFactory" />
+	</bean>
+	
+	<!--*********************************************************************-->
+    
+    <!-- 每天定点任务 -->
+  <!--  <bean id="userStateTimer" class="util.DataPredictAutomaticAutoMI"  scope="prototype">
+    	<property name="commonPreHandleDao" ref="commonPreHandleDao"></property>
+    	<property name="monitorItemTypeDao" ref="monitorItemTypeDao"></property>
+    	<property name="definssortDao" ref="definssortDao"></property>
+		<property name="commonPredictDao" ref="commonPredictDao"></property>
+		<property name="sin_preAutoDao" ref="sin_preAutoDao"></property>
+		<property name="dataPredictedDao" ref="dataPredictedDao"></property>
+		<property name="modelPointDao" ref="modelPointDao"></property>
+		<property name="midCharacterDao" ref="midCharacterDao"></property>
+		<property name="lstzzParasDao" ref="lstzzParasDao"></property>
+    </bean>
+    <bean id="jobtask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+    	调用的类  
+	    <property name="targetObject">  
+	        <ref bean="userStateTimer" />  
+	    </property>  
+	    <property name="targetMethod">  
+	        <value>jobTimer</value> 
+	    </property>
+	</bean> 
+	<bean id="doTime" class="org.springframework.scheduling.quartz.CronTriggerBean">  
+	    <property name="jobDetail">  
+	        <ref bean="jobtask" />  
+	    </property>  
+	    <property name="cronExpression">  
+	    每天一点  秒，分，时，日，月，星期，年
+	        <value>0 0 3 * * ?</value>  
+	    </property>  
+	</bean>  
+    <bean id="schedulerFactoryBean"  class="org.springframework.scheduling.quartz.SchedulerFactoryBean">  
+        <property name="triggers">  
+            <list>  
+                <ref bean="doTime" />  
+            </list>  
+        </property>  
+    </bean>  -->
+</beans>

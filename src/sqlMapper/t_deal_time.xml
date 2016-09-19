@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_DEAL_TIMEDao">
+	<resultMap type="t_deal_time" id="t_deal_time">
+		<id property="instr_no" column="instr_no"/>
+		<result property="dt" column="dt"/>
+	</resultMap>
+	<select id="dataPreprocess" parameterType="map" resultMap="t_deal_time">
+		SELECT TOP ${len} *
+		FROM LCRiver_xwdh_2.dbo.T_DEAL_TIME
+		WHERE instr_no >
+          (
+          SELECT ISNULL(MAX(instr_no),0) 
+          FROM 
+                (
+                SELECT TOP ${start} instr_no FROM LCRiver_xwdh_2.dbo.T_DEAL_TIME ORDER BY instr_no
+                ) A
+          )
+		ORDER BY instr_no
+		 
+	</select>
+	<select id="countPreDate" resultType="java.lang.Integer">
+		select count(*) as NUM from LCRiver_xwdh_2.dbo.T_DEAL_TIME
+	</select>
+</mapper>

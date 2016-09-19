@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IDtCharacteristicDao">
+	<resultMap type="mid_dtcharacteristic" id="mid_dtcharacteristic">
+		<id property="instr_no" column="instr_no"/>
+		<id property="wl" column="wl"/>
+		<result property="maxDV" column="maxDV"/>
+		<result property="minDV" column="minDV"/>
+		<result property="avgDV" column="avgDV"/>
+		<result property="maxDAV" column="maxDAV"/>
+		<result property="minDAV" column="minDAV"/>
+	</resultMap>
+	
+	<select id="getDynamicCharP1" parameterType="map" resultMap="mid_dtcharacteristic">
+		select i.INSTR_NO  ,max(i.realV - j.realV) maxDV , min(i.realV - j.realV) minDV , avg(i.realV - j.realV) avgDV from 
+	(select a.INSTR_NO , a.DT,a.Prehandle as realV 
+	from [LCRiver_xwdh_2_copy].[dbo].[${tableName}] a , ( (SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23)
+			and a.component = #{monitor_type}
+			and a.INSTR_NO = #{instr_no} 	
+			) i left join 
+			(select a.INSTR_NO , a.DT,a.Prehandle as realV 
+	from [LCRiver_xwdh_2_copy].[dbo].[${tableName}] a , ((SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23)
+			and a.component = #{monitor_type}
+			and a.INSTR_NO = #{instr_no} 	
+			) j
+			on i.INSTR_NO = j.INSTR_NO
+			and CONVERT(varchar(10),j.DT,23) = CONVERT(varchar(10),i.DT-1,23) 
+			--) c
+		where  i.DT between '2012-06-01' and '${nextDate}'
+	group by i.INSTR_NO  
+	order by i.INSTR_NO
+	
+	</select>
+	
+	<select id="getDynamicCharP2" parameterType="map" resultMap="mid_dtcharacteristic">
+		select i.INSTR_NO  ,max(i.realV - j.realV) maxDV , min(i.realV - j.realV) minDV , avg(i.realV - j.realV) avgDV from 
+	(select a.INSTR_NO , a.DT,a.Prehandle as realV 
+	from [LCRiver_xwdh_2_copy].[dbo].[${tableName}] a , ((SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23)
+			and a.component = #{monitor_type}
+			and a.INSTR_NO = #{instr_no} 	
+			) i left join 
+			(select a.INSTR_NO , a.DT,a.Prehandle as realV 
+	from [LCRiver_xwdh_2_copy].[dbo].[${tableName}] a , ((SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23)
+			and a.component = #{monitor_type}
+			and a.INSTR_NO = #{instr_no} 	
+			) j
+			on i.INSTR_NO = j.INSTR_NO
+			and CONVERT(varchar(10),j.DT,23) = CONVERT(varchar(10),i.DT-1,23) 
+			--) c
+		where  i.DT between '2012-06-01' and '${nextDate}'
+		and (i.realV - j.realV ) &lt; #{avgDV}
+		 and i.INSTR_NO = #{instr_no}
+	group by i.INSTR_NO  
+	order by i.INSTR_NO
+	</select>
+	
+	<select id="getDynamicCharP3" parameterType="map" resultMap="mid_dtcharacteristic">
+		select i.INSTR_NO  ,max(i.realV - j.realV) maxDV , min(i.realV - j.realV) minDV , avg(i.realV - j.realV) avgDV from 
+	(select a.INSTR_NO , a.DT,a.Prehandle as realV 
+	from [LCRiver_xwdh_2_copy].[dbo].[${tableName}] a , ((SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23)
+			and a.component = #{monitor_type}
+			and a.INSTR_NO = #{instr_no} 	
+			) i left join 
+			(select a.INSTR_NO , a.DT,a.Prehandle as realV 
+	from [LCRiver_xwdh_2_copy].[dbo].[${tableName}] a , ((SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23)
+			and a.component = #{monitor_type}
+			and a.INSTR_NO = #{instr_no} 	
+			) j
+			on i.INSTR_NO = j.INSTR_NO
+			and CONVERT(varchar(10),j.DT,23) = CONVERT(varchar(10),i.DT-1,23) 
+			--) c
+		where  i.DT between '2012-06-01' and '${nextDate}'
+		and (i.realV - j.realV ) &gt; #{avgDV}
+		 and i.INSTR_NO = #{instr_no}
+	group by i.INSTR_NO  
+	order by i.INSTR_NO
+	</select>
+	
+	<delete id="removeMidChar" parameterType="map"> 
+		delete FROM [LCRiver_xwdh_3].[dbo].[${tableName}_MID_DTLSTZZ]
+  		where 1 = 1
+  		and INSTR_NO = #{instr_no}
+	</delete>
+	
+	<insert id="addMidDynamic" parameterType="map">
+		insert into [LCRiver_xwdh_3].[dbo].[${tableName}_MID_DTLSTZZ] (
+		[INSTR_NO],[maxV],[minV],[avgV],[minAV],[maxAV],[Ri])
+		values (#{INSTR_NO},#{maxDV},#{minDV},#{avgDV},#{minDAV},#{maxDAV},#{monitor_type})
+	</insert>
+	
+	<insert id="addDynamicRes"  parameterType="map">
+		insert into [LCRiver_xwdh_3].[dbo].[${tableName}_DTLSTZZ] 
+			([INSTR_NO],[DT],[realV],[Ri],[gradation])
+		select t.INSTR_NO,t.DT,realV,t.component ,
+			(case 
+				when realV &lt; minV then 1 
+				when realV between minV and minAV then 2 
+				when realV between minAV and avgV then 3 
+				when realV between avgV and maxAV then 4 
+				when realV between maxAV and maxV then 5 
+				when realV &gt; maxV then 6 
+			end) gradation  from 
+		(select i.INSTR_NO ,i.DT,(i.realV - j.realV) realV,i.component from 
+			(select a.INSTR_NO , a.DT,a.Prehandle as realV ,a.component
+			from [LCRiver_xwdh_2_copy].[dbo].[${tableName}] a , ((SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23) 
+		and a.component = #{monitor_type}
+		and a.instr_no = #{instr_no}
+			) i left join 
+			(select a.INSTR_NO , a.DT,a.Prehandle as realV 
+			from [LCRiver_xwdh_2_copy].[dbo].[${tableName}] a ,((SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23)
+		and a.component = #{monitor_type}
+		and a.instr_no = #{instr_no} 	
+			) j
+			on i.INSTR_NO = j.INSTR_NO
+			and CONVERT(varchar(10),j.DT,23) = CONVERT(varchar(10),i.DT-1,23) 
+		where  i.DT between '${date}' and '2015-06-01'
+		 
+		) t left join [LCRiver_xwdh_3].[dbo].[${tableName}_MID_DTLSTZZ] p on t.INSTR_NO = p.instr_no and p.Ri = t.component
+		order by t.INSTR_NO,t.DT
+			
+	</insert>
+	
+</mapper>

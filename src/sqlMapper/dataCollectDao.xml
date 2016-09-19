@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IDataCollectionDao">
+	
+	<insert id="addWorkState" parameterType="map">
+		 INSERT INTO [DataCollection].[dbo].[DefWorkState] 
+		 ([name] ,[date], [state] ) values (#{stateName},#{stateDate},#{stateStr})
+		 
+	</insert>
+	
+	<update id="updWorkState" parameterType="map">
+		 UPDATE [DataCollection].[dbo].[DefWorkState]  set [state] = #{stateStr},[count] = #{countCaculated} , [time] = #{updTime}
+		 	 where  [name] = #{stateName} and convert(varchar(10),[date],23)  = #{stateDate}
+	</update>
+	
+	<select id="queryWorkState" parameterType="map" resultType = "int">
+		SELECT count(*) FROM [DataCollection].[dbo].[DefWorkState] 
+		where [name] = #{stateName} and convert(varchar(10),[date],23) = #{stateDate}
+	</select>
+	
+</mapper>

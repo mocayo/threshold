@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IMODEL_PARADao">
+	<resultMap type="model_para" id="model_para">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<id property="mid" column="mid"/>
+		<result property="isemploy" column="isemploy"/>
+		<result property="a" column="a"/>
+		<result property="b" column="b" />
+		<result property="c" column="c"/>
+		<result property="d" column="d"/>
+		<result property="e" column="e"/>
+		<result property="f" column="f"/>
+		<result property="g" column="g"/>
+		<result property="h" column="h"/>
+		<result property="i" column="i"/>
+		<result property="j" column="j"/>
+		<result property="isadjust" column="isadjust"/>
+	</resultMap>
+	
+	<select id="parameterQuery" parameterType="map" resultMap="model_para">
+		select * from LCRiver_xwdh_3.dbo.model_para where  mid =#{mid} and isemploy=1 
+		and dt in(select max(dt) from LCRiver_xwdh_3.dbo.model_para group by instr_no )
+	</select>
+	
+	<select id="sinForcast" parameterType="map" resultMap="model_para">
+		SELECT TOP ${len} *
+		FROM LCRiver_xwdh_3.dbo.model_para
+		WHERE 
+		mid like '%' + #{mid} + '%' and instr_no like '%' + #{damCode} + '%' 
+		AND instr_no like '%' + #{sjType} + '%'  and isemploy=1
+		and
+		instr_no >
+          (
+          SELECT ISNULL(MAX(instr_no),0) 
+          FROM 
+                (
+                SELECT TOP ${start} instr_no from LCRiver_xwdh_3.dbo.model_para where mid like '%' + #{mid} + '%' and instr_no like '%' + #{damCode} + '%' AND instr_no like '%' + #{sjType} + '%'  and isemploy=1 ORDER BY instr_no
+                ) A
+          )
+		ORDER BY instr_no
+	</select>
+	
+	<update id="modifymodelpara" parameterType="Entity.MODEL_PARA">
+		insert into  LCRiver_xwdh_3.dbo.model_para 
+		values(#{instr_no},#{dt},#{mid},1,#{a},#{b},#{c},#{d},#{e},#{f},#{g},#{h},#{i},#{j},1)
+	 </update>
+</mapper>

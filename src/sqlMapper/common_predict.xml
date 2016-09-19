@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ICommonPredictDao">
+	<resultMap type="common_predict" id="common_predict">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<id property="prediction_id" column="prediction_id"/>
+		<result property="wl" column="wl"/>
+		<result property="r1" column="r1"/>
+		<result property="r1_step" column="r1_step" />
+		<result property="r1_model" column="r1_model"/>
+		<result property="r1_pred" column="r1_pred"/>
+		<result property="r1_error" column="r1_error"/>
+		<result property="r1_err_rate" column="r1_err_rate"/>
+		<result property="r1_err_level" column="r1_err_level"/>
+		<result property="r1_mid_result" column="r1_mid_result"/>
+		<result property="r2" column="r2"/>
+		<result property="r2_step" column="r2_step" />
+		<result property="r2_model" column="r2_model"/>
+		<result property="r2_pred" column="r2_pred"/>
+		<result property="r2_error" column="r2_error"/>
+		<result property="r2_err_rate" column="r2_err_rate"/>
+		<result property="r2_err_level" column="r2_err_level"/>
+		<result property="r2_mid_result" column="r2_mid_result"/>
+		<result property="r3" column="r3"/>
+		<result property="r3_step" column="r3_step" />
+		<result property="r3_model" column="r3_model"/>
+		<result property="r3_pred" column="r3_pred"/>
+		<result property="r3_error" column="r3_error"/>
+		<result property="r3_err_rate" column="r3_err_rate"/>
+		<result property="r3_err_level" column="r3_err_level"/>
+		<result property="r3_mid_result" column="r3_mid_result"/>
+		<result property="note" column="note"/>		
+	</resultMap>
+	
+	<resultMap type="predict_data" id="predict_data">
+		<result property="wl" column="wl"/>
+		<result property="data" column="data"/>
+	</resultMap>
+	<resultMap type="predict_data2" id="predict_data2">
+		<result property="dt" column="dt"/>
+		<result property="data" column="data"/>
+	</resultMap>
+	
+	<!-- soda & qihai -->
+	
+	<select id="getCurrentTDay" resultType="string">
+		select max(keystr) from [xwplat].[dbo].[KEYVALUEPAIR]
+		where [type] = 'currentTDay'
+	</select>
+	
+	<insert id="addCurrentTDay" parameterType="string">
+		insert into [xwplat].[dbo].[KEYVALUEPAIR]([type], [keystr], [valuejson])
+		values ('currentTDay', #{day}, '[阈值计算最新日期]')
+	</insert>
+	
+	<select id="getAvgValue7" parameterType="map" resultType="Float">
+		SELECT
+			AVG (Prehandle)
+		FROM
+		LCRiver_xwdh_2.dbo.${tablename}
+		WHERE
+			INSTR_NO = '${instr_no}'
+		AND dt > '2012-06-07'
+		AND dt BETWEEN DATEADD(DAY, - 7, '${dt}')
+		AND '${dt}'
+		AND Component = '${component}'
+	</select>
+	
+	<!-- soda & qihai -->
+	
+	<select id="getRealR1" parameterType="map" resultType="Double"> 
+		select R1 from LCRiver_xwdh_2.dbo.${tableName}
+	    where INSTR_NO = #{instr_no} and CONVERT(varchar(10),DT,23) = #{dt}
+	</select>
+	
+	<select id="getRealR2" parameterType="map" resultType="Double"> 
+		select R2 from LCRiver_xwdh_2.dbo.${tableName}
+	    where INSTR_NO = #{instr_no} and CONVERT(varchar(10),DT,23) = #{dt}
+	</select>
+	
+	<select id="getWLMaxDate" resultType="string">
+		SELECT
+			MAX (UPLEVELDT) AS DT
+		FROM
+			xwplat.dbo.B_HUBENV
+	</select>
+	
+	<select id="getWL" parameterType="map" resultType="predict_data2" > 
+	    SELECT dt,wl as data from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp where tmp.rowNum = 1 and CONVERT(varchar(10),tmp.DT,23) = #{dt} 
+	</select>
+	
+	<select id="getTimeListByIdTm" parameterType="map" resultType="String" statementType="STATEMENT"> 
+		select DISTINCT DT from LCRiver_xwdh_2.dbo.${tableName}
+	    where INSTR_NO = '${instr_no}' and CONVERT(varchar(10),DT,23) between '${startTime}' and '${endTime}'
+	    order by dt
+	</select>
+	
+	<select id="getDataByIdTm" parameterType="map" resultType="predict_data" > 
+		select tmp.wl,tmp.data from (
+	    select top 100 t2.WL as wl, t1.${monitor_type} as data , t1.DT
+		from [LCRiver_xwdh_2].[dbo].${tableName}_final as t1, (SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2
+		where t1.INSTR_NO = '${instr_no}' and t1.DT &lt; '${dt}' and t2.rowNum = 1
+			and CONVERT(varchar(10),t1.DT,23) = CONVERT(varchar(10),t2.DT,23) 	
+			and t1.${monitor_type} is not null and t1.HANDLE_${monitor_type}_RESULT = 1 and t1.${monitor_type} != 0
+		order by t1.DT desc )tmp
+		order by tmp.DT
+	</select>
+	
+	<select id="getDataByIdTm2" parameterType="map" resultType="predict_data2" statementType="STATEMENT"> 
+		select * from (
+	    select top 100 t1.DT as dt, t1.${monitor_type} as data
+		from [LCRiver_xwdh_2].[dbo].${tableName}_final as t1
+		where t1.INSTR_NO = '${instr_no}' and t1.DT &lt; '${dt}' 
+			and t1.${monitor_type} is not null and t1.HANDLE_${monitor_type}_RESULT = 1 and t1.${monitor_type} != 0
+		order by t1.DT desc )tmp
+		order by tmp.DT
+	</select>
+	
+	<select id="getDataByIdTm3" parameterType="map" resultType="predict_data" > 
+		select tmp.wl,tmp.data from (
+	    select top 100 t2.WL as wl, t1.Prehandle as data, t1.DT
+		from [LCRiver_xwdh_2].[dbo].${tableName}_AUTO as t1, (SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2
+		where t1.INSTR_NO = '${instr_no}' and t1.DT &lt; '${dt}' and t2.rowNum = 1
+			and CONVERT(varchar(10),t1.DT,23) = CONVERT(varchar(10),t2.DT,23) 	
+			and t1.Component = '${monitor_type}' and t1.Prehandle != 0
+			and t1.mark = 1
+		order by t1.DT desc )tmp
+		order by tmp.DT
+	</select>
+
+	<select id="getDataByIdTm4" parameterType="map" resultType="predict_data2" > 
+		select * from (
+	    select top 100 t1.DT as dt, t1.Prehandle as data
+		from [LCRiver_xwdh_2].[dbo].${tableName}_AUTO as t1
+		where t1.INSTR_NO = '${instr_no}' and t1.DT &lt; '${dt}' 
+			and t1.Component = '${monitor_type}' and t1.Prehandle != 0
+			and t1.mark = 1
+		order by t1.DT desc )tmp
+		order by tmp.DT
+	</select>
+	
+	<select id="getRealDataByIdTm" parameterType="map" resultType="predict_data" > 
+		select t2.WL as wl, t1.${monitor_type} as data
+		from [LCRiver_xwdh_2].[dbo].${tableName} as t1,  (SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2
+		where t1.INSTR_NO = '${instr_no}' and CONVERT(varchar(10),t1.DT,23) = '${dt}' and t2.rowNum = 1
+			and CONVERT(varchar(10),t1.DT,23) = CONVERT(varchar(10),t2.DT,23) 	
+			and t1.${monitor_type} is not null and t1.${monitor_type} != 0
+		order by t1.DT desc
+	</select>
+	
+	<select id="getRealAllData" parameterType="map" resultType="common_predict" > 
+		select t2.WL as wl, t1.r1, t1.r2, t1.dt
+		from [LCRiver_xwdh_2].[dbo].${tableName} as t1,  (SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp ) as t2
+		where t1.INSTR_NO = '${instr_no}' and CONVERT(varchar(10),t1.DT,23) = #{dt} and t2.rowNum = 1
+			and CONVERT(varchar(10),t1.DT,23) = CONVERT(varchar(10),t2.DT,23) 	
+			and ((t1.r1 is not null and t1.r1 != 0) 
+			or (t1.r2 is not null and t1.r2 != 0) )
+		order by t1.DT desc
+	</select>
+	
+	<select id="getStatusByIdTm" parameterType="map" resultType="int" > 
+		select mark
+		from [LCRiver_xwdh_2].[dbo].${tableName}_AUTO
+		where INSTR_NO = '${instr_no}' and CONVERT(varchar(10),DT,120) = '${dt}'
+		and component = '${monitor_type}'
+	</select>
+	
+	<select id="getPreDataByIdTm" parameterType="map" resultType="double" > 
+		select Prehandle
+		from [LCRiver_xwdh_2].[dbo].${tableName}_AUTO
+		where INSTR_NO = '${instr_no}' and CONVERT(varchar(10),DT,120) = '${dt}'
+		and component = '${monitor_type}'
+	</select>
+
+	<select id="getDataByKeys" parameterType="map" resultType="common_predict">
+		select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where [INSTR_NO] = #{instr_no}
+		 and [DT] = #{dt} and [PREDICTION_ID] = #{prediction_id}
+	</select>
+	
+	<select id="resultById" parameterType="map" resultMap="common_predict">
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}]
+			WHERE [prediction_id] = #{prediction_id}
+			<if test="instr_no!=null and instr_no != ''">
+				and instr_no = #{instr_no}
+			</if>
+			ORDER BY instr_no, dt desc
+	</select>
+	
+	<select id="resultFYById" parameterType="map" resultMap="common_predict">
+		SELECT TOP ${len} * FROM [LCRiver_xwdh_3].[dbo].[${tableName}]
+			WHERE [prediction_id] = #{prediction_id}
+			<if test="instr_no!=null and instr_no != ''">
+				and instr_no = #{instr_no}
+			</if>
+			and instr_no+CONVERT(varchar(100), dt, 120) >
+				(
+					SELECT ISNULL(MAX(pid),0) from (
+						SELECT TOP ${start} (instr_no+CONVERT(varchar(100), dt, 120)) as pid 
+							FROM [LCRiver_xwdh_3].[dbo].[${tableName}] where [prediction_id] = #{prediction_id}
+							<if test="instr_no!=null and instr_no != ''">
+								and instr_no = #{instr_no}
+							</if>
+							order by instr_no,CONVERT(varchar(100), dt, 120)
+					) A
+	 			)
+ 				order by instr_no,CONVERT(varchar(100), dt, 120)
+	</select>
+	
+	<select id="countResultById" parameterType="map" resultType="int">
+		SELECT count(*) FROM [LCRiver_xwdh_3].[dbo].[${tableName}]
+			WHERE [prediction_id] = #{prediction_id}
+			<if test="instr_no!=null and instr_no != ''">
+				and instr_no = #{instr_no}
+			</if>
+	</select>
+	
+	<select id="resultById2" parameterType="map" resultMap="common_predict">
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}]
+			WHERE [prediction_id] = #{prediction_id}
+			<if test="instr_no!=null and instr_no != ''">
+				and instr_no = #{instr_no}
+			</if>
+			and ${component} is not null
+			ORDER BY instr_no, dt desc
+	</select>
+	
+	<select id="getExceptionDetial" parameterType="map" resultMap="common_predict">
+		select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where [prediction_id] = #{[preId]} 
+			and [DT] = #{dateS}
+			
+	</select>
+	
+	<select id="getRsme" parameterType="map" resultType="String">
+		select top 100 err_rate from [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO] where dt &lt; #{dt} and component = #{monitor_type} order by dt desc
+	</select>
+	
+	<select id="getRsme0" parameterType="map" resultType="String">
+		select err_rate from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = #{monitor_type} and modelId = 2 order by dt desc
+	</select>
+	
+	<select id="getRsme1" parameterType="map" resultType="String">
+		select err_rate from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = #{monitor_type} and modelId = 3 order by dt desc
+	</select>
+	
+	<select id="getRsme2" parameterType="map" resultType="String">
+		select err_rate from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = #{monitor_type} and modelId = 4 order by dt desc
+	</select>
+	
+	<select id="resultsM0" parameterType="map" resultMap="common_predict">
+		SELECT t1.instr_no,t1.dt,t1.wl,t1.prediction_id,t1.realVal as r1 , t1.preVal as r1_pred ,t1.err_rate as r1_err_rate,t2.realVal as r2 , t2.preVal as r2_pred ,t2.err_rate as r2_err_rate,t3.realVal as r3 , t3.preVal as r3_pred ,t3.err_rate as r3_err_rate from (
+		(select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r1' and instr_no = #{instr_no} and modelId = '2') t1 LEFT JOIN (select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r2' and instr_no = #{instr_no} and modelId = '2') t2 on t1.instr_no = t2.instr_no and t1.dt = t2.dt 
+			LEFT JOIN (select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r3' and instr_no = #{instr_no} and modelId = '2') t3 on t1.instr_no = t3.instr_no and t1.dt = t3.dt )
+	</select>
+	
+	<select id="resultsM1" parameterType="map" resultMap="common_predict">
+		SELECT t1.instr_no,t1.dt,t1.wl,t1.prediction_id,t1.realVal as r1 , t1.preVal as r1_pred ,t1.err_rate as r1_err_rate,t2.realVal as r2 , t2.preVal as r2_pred ,t2.err_rate as r2_err_rate,t3.realVal as r3 , t3.preVal as r3_pred ,t3.err_rate as r3_err_rate from (
+		(select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r1' and instr_no = #{instr_no} and modelId = '3') t1 LEFT JOIN (select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r2' and instr_no = #{instr_no} and modelId = '3') t2 on t1.instr_no = t2.instr_no and t1.dt = t2.dt 
+			LEFT JOIN (select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r3' and instr_no = #{instr_no} and modelId = '3') t3 on t1.instr_no = t3.instr_no and t1.dt = t3.dt )
+	</select>
+	
+	<select id="resultsM2" parameterType="map" resultMap="common_predict">
+		SELECT t1.instr_no,t1.dt,t1.wl,t1.prediction_id,t1.realVal as r1 , t1.preVal as r1_pred ,t1.err_rate as r1_err_rate,t2.realVal as r2 , t2.preVal as r2_pred ,t2.err_rate as r2_err_rate,t3.realVal as r3 , t3.preVal as r3_pred ,t3.err_rate as r3_err_rate from (
+		(select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r1' and instr_no = #{instr_no} and modelId = '4') t1 LEFT JOIN (select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r2' and instr_no = #{instr_no} and modelId = '4') t2 on t1.instr_no = t2.instr_no and t1.dt = t2.dt 
+			LEFT JOIN (select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id} and component = 'r3' and instr_no = #{instr_no} and modelId = '4') t3 on t1.instr_no = t3.instr_no and t1.dt = t3.dt )
+	</select>
+	
+	<select id="getMidModel" parameterType="map" resultType="String">
+			select [${monitor_type}_MID_RESULT] from [LCRiver_xwdh_3].[dbo].[${tableName}] where prediction_id = #{prediction_id}
+	</select>
+	
+	<insert id="add_res" parameterType="map">
+		<!-- INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}](
+			[INSTR_NO],[DT],[${monitor_type}],[${monitor_type}_STEP],[${monitor_type}_MODEL],[${monitor_type}_PRED],[${monitor_type}_ERROR],[${monitor_type}_ERR_RATE],[${monitor_type}_ERR_LEVEL],[${monitor_type}_MID_RESULT],[PREDICTION_ID],[wl]) 
+		VALUES(#{instr_no},#{dt},#{${monitor_type}},#{${monitor_type}_step},#{${monitor_type}_model},#{${monitor_type}_pred},#{${monitor_type}_error},#{${monitor_type}_err_rate},#{${monitor_type}_err_level},#{${monitor_type}_mid_result},#{prediction_id},#{wl}) -->
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}](
+			[INSTR_NO],[DT],[component],[modelId],[WL],[realVal],[prehandle],[mark],[step],[preVal],[err_rate],[isBest],[prediction_id])
+		VALUES(#{instr_no},#{dt},#{component},#{modelId},#{wl},#{realVal},#{prehandle},#{mark},#{step},#{preVal},#{err_rate},'','${prediction_id}')
+	</insert>
+	
+	<update id="update_res" parameterType="map">
+		update LCRiver_xwdh_3.[dbo].[${tableName}]
+		set [${monitor_type}] = #{${monitor_type}},[${monitor_type}_STEP] = #{${monitor_type}_step},[${monitor_type}_MODEL] = #{${monitor_type}_model},[${monitor_type}_PRED] = #{${monitor_type}_pred},
+			[${monitor_type}_ERROR] = #{${monitor_type}_error},[${monitor_type}_ERR_RATE] = #{${monitor_type}_err_rate},[${monitor_type}_ERR_LEVEL] = #{${monitor_type}_err_level},[${monitor_type}_MID_RESULT] = #{${monitor_type}_mid_result}
+		where instr_no = #{instr_no} and dt = #{dt} and PREDICTION_ID = #{prediction_id}
+	</update>
+
+<!-- <insert id="addRes" parameterType="map">
+	    INSERT INTO LCRiver_xwdh_3.[dbo].[${tableName}_RES]
+		select m.*,'0' prediction_id from LCRiver_xwdh_3.[dbo].[${tableName}_AUTO] m, (
+			SELECT INSTR_NO,dt,component,min(err_rate) as minRate from LCRiver_xwdh_3.[dbo].[${tableName}_AUTO] 
+			GROUP BY INSTR_NO,dt,component) t
+		where m.INSTR_NO = t.INSTR_NO and m.dt = t.dt
+		and m.err_rate = t.minRate	
+		and CONVERT(varchar(10),m.DT,23) = '${dt}'
+	</insert> -->
+	<update id="updRes" parameterType="map">
+		UPDATE m set isBest = 1 from LCRiver_xwdh_3.[dbo].[${tableName}_AUTO] m INNER JOIN (
+			SELECT INSTR_NO,dt,component,min(err_rate) as minRate from LCRiver_xwdh_3.[dbo].[${tableName}_AUTO] 
+			GROUP BY INSTR_NO,dt,component) t
+		on m.INSTR_NO = t.INSTR_NO and m.dt = t.dt
+		and m.err_rate = t.minRate
+		where CONVERT(varchar(10),m.DT,23) = '${dt}'
+	</update>
+	
+	<update id="addRes_auto" parameterType="map">
+		UPDATE m set isBest = 1 from LCRiver_xwdh_3.[dbo].[${tableName}_RES1] m INNER JOIN (
+			SELECT tmp1.INSTR_NO,tmp1.dt,tmp1.component,tmp1.modelId,tmp1.err_rate , row_number() OVER(partition by tmp1.instr_no,tmp1.component,CONVERT(VARCHAR(10), tmp1.dt ,23 ) order by tmp1.dt) rowNum
+ 			from LCRiver_xwdh_3.[dbo].[${tableName}_RES1] tmp1 INNER JOIN (SELECT INSTR_NO,dt,component,min(err_rate) as minRate from LCRiver_xwdh_3.[dbo].[${tableName}_RES1] 
+ 			where CONVERT(varchar(10),DT,23) = '${dt}'
+ 			GROUP BY INSTR_NO,dt,component) tmp2 on tmp1.INSTR_NO = tmp2.INSTR_NO and tmp1.dt = tmp2.dt
+		and tmp1.err_rate = tmp2.minRate  and tmp1.component = tmp2.component 
+		where CONVERT(varchar(10),tmp1.DT,23) = '${dt}') t
+		on m.INSTR_NO = t.INSTR_NO and CONVERT(varchar(10),m.DT,23) = CONVERT(varchar(10),t.DT,23) 
+		and m.component = t.component 
+		and m.err_rate = t.err_rate and m.modelId = t.modelId
+		where CONVERT(varchar(10),m.DT,23) = '${dt}' and t.rowNum = 1
+	</update>
+	
+	<update id="addRes" parameterType="map">
+		UPDATE m set isBest = 1 from LCRiver_xwdh_3.[dbo].[${tableName}] m INNER JOIN (
+			SELECT INSTR_NO,dt,component,min(err_rate) as minRate from LCRiver_xwdh_3.[dbo].[${tableName}] 
+			GROUP BY INSTR_NO,dt,component) t
+		on m.INSTR_NO = t.INSTR_NO and m.dt = t.dt
+		and m.err_rate = t.minRate
+		where PREDICTION_ID = #{prediction_id}
+	</update>
+</mapper>

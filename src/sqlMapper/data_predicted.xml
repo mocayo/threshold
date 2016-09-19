@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IDataPredictedDao">
+	<resultMap type="data_predicted" id="data_predicted">
+		<id property="instr_no" column="instr_no"/>
+		<id property="tableName" column="tableName"/>
+		<result property="isCompleted" column="isCompleted"/>
+	</resultMap>
+	 
+	 <insert id="addPredicted" parameterType="map">
+	 	insert into LCRiver_xwdh_3.dbo.T_DATA_PREDICTED (instr_no,tableName,modelId,isCompleted)
+	 	values (#{instr_no},#{tableName},#{modelId},'0')
+	 </insert>
+	 
+	 <update id="updPredicted" parameterType="map">
+	 	update LCRiver_xwdh_3.dbo.T_DATA_PREDICTED set isCompleted = '1'
+	 		where instr_no = #{instr_no}
+	 		and tableName = #{tableName}
+	 		and modelId = #{modelId}
+	 </update>
+	 
+	<select id="isPredicted0" parameterType="map" resultType="int">
+	 	select count(*) from LCRiver_xwdh_3.dbo.T_DATA_PREDICTED 
+	 		where instr_no = #{instr_no}
+	 			and tableName = #{tableName}
+	 			and modelId = #{modelId}
+	 			and isCompleted = 0
+	 </select> 
+	 
+	 <select id="isPredicted1" parameterType="map" resultType="int">
+	 	select count(*) from LCRiver_xwdh_3.dbo.T_DATA_PREDICTED 
+	 		where instr_no = #{instr_no}
+	 			and tableName = #{tableName}
+	 			and modelId = #{modelId}
+	 			and isCompleted = 1
+	 </select>
+
+	</mapper>

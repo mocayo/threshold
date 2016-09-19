@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IMidCharacteristicDao">
+	<resultMap type="mid_characteristic" id="mid_characteristic">
+		<id property="instr_no" column="instr_no"/>
+		<id property="wl" column="wl"/>
+		<result property="maxV" column="maxV"/>
+		<result property="minV" column="minV"/>
+		<result property="avgV" column="avgV"/>
+		<result property="maxAV" column="maxAV"/>
+		<result property="minAV" column="minAV"/>
+	</resultMap>
+	
+	<resultMap id="pointValue" type="pointValue">
+		<result column="DT" property="dt" jdbcType="TIMESTAMP" />
+		<result column="Prehandle" property="prehandle" jdbcType="FLOAT" />
+		<result column="WL" property="wl" jdbcType="FLOAT" />
+	</resultMap>
+	
+	<select id="queryData" parameterType="map" resultType="pointValue">
+		SELECT t.DT, t.Prehandle,ROUND(twl.WL, 1) --twl.WL
+		FROM LCRiver_xwdh_2.dbo.${tableName}_AUTO t, LCRiver_xwdh_3.dbo.T_WATERLEVEL twl
+		where t.INSTR_NO = #{INSTR_NO} and t.mark = 1 and t.Component = #{monitor_type} and t.DT between '2012-06-01' and #{nextDate} and t.DT = twl.DT
+		AND (twl.WL BETWEEN '1180.00' and '1181.99' or twl.WL BETWEEN '1189.00' and '1190.99' or twl.WL BETWEEN '1299.00' and '1200.99' 
+					or twl.WL BETWEEN '1209.00' and '1210.99' or twl.WL BETWEEN '1217.00' and '1218.99' or twl.WL BETWEEN '1224.00' and '1225.99' 
+					or twl.WL BETWEEN '1231.00' and '1232.99' or twl.WL BETWEEN '1239.00' and '1240.99' )
+		order by t.DT
+	</select>
+	
+	<select id="getCharDataP1" parameterType="map" resultMap="mid_characteristic">
+		select INSTR_NO, MAX(realV) maxV ,MIN (realV) minV ,AVG (realV) avgV  from (
+			select CAST([WL] as decimal) as WL , INSTR_NO ,a.${monitor_type} as realV 
+				from [LCRiver_xwdh_2].[dbo].[${tableName}] a , (SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 ) b 
+				where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23) 	
+				and a.${monitor_type} is not null and a.${monitor_type} != 0 
+				and a.INSTR_NO = #{instr_no}
+				) a
+				
+		group by INSTR_NO 
+	</select>
+	
+	<select id="getCharDataP2" parameterType="map" resultMap="mid_characteristic">
+		select INSTR_NO, AVG (realV) minAV  from (
+			select CAST([WL] as decimal) as WL , INSTR_NO ,a.${monitor_type} as realV 
+				from [LCRiver_xwdh_2].[dbo].[${tableName}] a , (SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 ) b 
+				where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23) 	
+				and a.${monitor_type} is not null and a.${monitor_type} != 0 
+				and INSTR_NO = '${instr_no}'
+				) a
+		where realV &lt; ${avgV}
+		group by INSTR_NO 
+	</select>
+	
+	<select id="getCharDataP3" parameterType="map" resultMap="mid_characteristic">
+		select INSTR_NO, AVG (realV) maxAV  from (
+			select CAST([WL] as decimal) as WL , INSTR_NO ,a.${monitor_type} as realV 
+				from [LCRiver_xwdh_2].[dbo].[${tableName}] a , (SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV) as t2 where t2.DT between '2012-06-01' and '${nextDate}' and t2.rowNum = 1 ) b 
+				where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23) 	
+				and a.${monitor_type} is not null and a.${monitor_type} != 0 
+				and INSTR_NO = '${instr_no}'
+				) a
+		where realV &gt; ${avgV}
+		group by INSTR_NO 
+	</select>
+	
+	<insert id="addMidChar" parameterType="map">
+		insert into [LCRiver_xwdh_3].[dbo].[${tableName}_MID_LSTZZ] (
+		[INSTR_NO],[WL],[maxV],[minV],[avgV],[minAV],[maxAV],[Ri],[isRising])
+		values (#{INSTR_NO},#{WL},#{maxV},#{minV},#{avgV},#{minAV},#{maxAV},#{monitor_type},#{isUpper})
+	</insert>
+	
+	<delete id="removeMidChar" parameterType="map">
+		delete FROM [LCRiver_xwdh_3].[dbo].[${tableName}_MID_LSTZZ]
+  		where 1 = 1
+  		and [INSTR_NO] = #{instr_no}
+	</delete>
+	
+	<insert id="addCharRes" parameterType="map">
+		insert into [LCRiver_xwdh_3].[dbo].[${tableName}_LSTZZ] 
+			( [INSTR_NO],[WL],[DT],[realV],[gradation],[Ri])
+		select t.INSTR_NO,1 WL, t.DT,realV,
+			(case 
+				when realV &lt; minV then 1 
+				when realV between minV and minAV then 2 
+				when realV between minAV and avgV then 3 
+				when realV between avgV and maxAV then 4 
+				when realV between maxAV and maxV then 5 
+				when realV &gt; maxV then 6 
+			end) gradation ,t.component from 
+		(select INSTR_NO ,a.DT,a.${monitor_type} as realV ,'${monitor_type}' as component
+	from [LCRiver_xwdh_2].[dbo].[${tableName}] a 
+		where CONVERT(varchar(10),a.DT,23) = '${date}' 
+		and a.${monitor_type} is not null and a.${monitor_type} != 0 	
+		and a.instr_no = #{instr_no}
+		) t left join [LCRiver_xwdh_3].[dbo].[${tableName}_MID_LSTZZ] p on t.INSTR_NO = p.instr_no and p.Ri = t.component
+		order by t.INSTR_NO,t.DT
+			
+	</insert>
+	
+	<insert id="addCharRes2" parameterType="map">
+		insert into [LCRiver_xwdh_3].[dbo].[${tableName}_LSTZZ] 
+			([WL],[INSTR_NO],[DT],[realV],[Ri],[gradation])
+		select t.WL, t.INSTR_NO,t.DT,realV,t.component ,
+			(case 
+				when realV &lt; minV then 1 
+				when realV between minV and minAV then 2 
+				when realV between minAV and avgV then 3 
+				when realV between avgV and maxAV then 4 
+				when realV between maxAV and maxV then 5 
+				when realV &gt; maxV then 6 
+			end) gradation from 
+		(select [WL], INSTR_NO ,b.DT,a.${monitor_type} as realV ,'${monitor_type}' as component
+	from [LCRiver_xwdh_2].[dbo].[${tableName}] a ,(SELECT * from (select UPLEVEL as WL ,UPLEVELDT as DT, row_number() OVER(partition by CONVERT(VARCHAR(10), UPLEVELDT ,23 ) order by UPLEVELDT desc) rowNum 
+		from xwplat.dbo.B_HUBENV)tmp )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23) 
+		and a.${monitor_type} is not null and a.${monitor_type} != 0  and b.rowNum = 1	
+		and a.instr_no = #{instr_no} and CONVERT(VARCHAR(10),a.dt,23) = '${date}' 
+		) t left join [LCRiver_xwdh_3].[dbo].[${tableName}_MID_LSTZZ] p on t.INSTR_NO = p.instr_no and p.Ri = t.component
+		order by t.INSTR_NO,t.DT
+			
+	</insert>
+	
+	<insert id="addCharRes3" parameterType="map">
+		insert into [LCRiver_xwdh_3].[dbo].[${tableName}_LSTZZ] 
+			([WL],[INSTR_NO],[DT],[realV],[Ri],[gradation])
+		select t.WL, t.INSTR_NO,t.DT,realV,t.component ,
+			(case 
+				when realV &lt; minV then 1 
+				when realV between minV and minAV then 2 
+				when realV between minAV and avgV then 3 
+				when realV between avgV and maxAV then 4 
+				when realV between maxAV and maxV then 5 
+				when realV &gt; maxV then 6 
+			end) gradation from 
+		(select [WL], INSTR_NO ,b.DT,a.Prehandle as realV ,a.component , b.isRising
+	from [LCRiver_xwdh_2].[dbo].[${tableName}_AUTO] a ,(SELECT Round(wl,1) WL,DT,isRising from LCRiver_xwdh_3.dbo.T_WATERLEVEL )b 
+		where CONVERT(varchar(10),a.DT,23) = CONVERT(varchar(10),b.DT,23) and a.component = #{monitor_type}
+		and a.mark != 0
+		and a.instr_no = #{instr_no} and CONVERT(VARCHAR(10),a.dt,23) = '${date}' 
+		) t left join [LCRiver_xwdh_3].[dbo].[${tableName}_MID_LSTZZ] p on t.INSTR_NO = p.instr_no and p.Ri = t.component and p.isRising = t.isRising and p.wl = t.wl
+		order by t.INSTR_NO,t.DT
+			
+	</insert>
+	
+</mapper>

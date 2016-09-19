@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ILstzzParasDao">
+	<resultMap type="lstzz_paras" id="lstzz_paras">
+		<result property="step" column="step"/>
+		<result property="nextDate" column="nextDate"/>
+	</resultMap>
+	
+	<select id="getParas" parameterType="map" resultMap="lstzz_paras">
+		select * from  LCRiver_xwdh_3.dbo.T_LSSET where 1 = 1
+	</select>
+	
+	<update id="updateParas" parameterType="map" >
+	    update LCRiver_xwdh_3.dbo.T_LSSET set nextDate = #{nextDate} where 1 = 1
+	</update>
+	
+	</mapper>

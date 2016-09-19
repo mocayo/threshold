@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ICommonPreHandleBatchDao">
+	<resultMap type="common_prehandle_batch" id="common_prehandle_batch">
+		<id property="id" column="id"/>
+		<result property="dt" column="dt"/>
+		<result property="resultdiscript" column="resultdiscript"/>
+		<result property="tablename" column="tablename"/>
+		<result property="statu" column="statu"/>
+		<result property="setaside1" column="setaside1"/>
+		<result property="setaside1" column="setaside2"/>
+	</resultMap>
+	<insert id="addPreResult" parameterType="map">
+		insert into LCRiver_xwdh_2.dbo.COM_PRE_BATCH([id],[dt],[resultdiscript],[statu],[tableName])
+		values (#{batchId},#{dt},#{resultdiscript},#{statu},#{tableName})
+	</insert>
+	
+	<select id="getBatchInfoByBatchId" parameterType="String" resultType="common_prehandle_batch"> 
+		SELECT  * FROM LCRiver_xwdh_2.dbo.COM_PRE_BATCH where id = #{batchId} 
+	</select>
+	
+	<select id="getAllPreHandleBatch"  resultType="common_prehandle_batch"> 
+		SELECT  * FROM LCRiver_xwdh_2.dbo.COM_PRE_BATCH order by dt desc
+	</select>
+	
+	<!-- 获得记录总数 -->
+	<select id="getPreHandleCount" resultType="int">
+		select count(id) from LCRiver_xwdh_2.dbo.COM_PRE_BATCH
+	</select>
+	
+	<select id="getPreHandleTimeCount" parameterType="map" resultType="int">
+		SELECT count(id) FROM LCRiver_xwdh_2.dbo.COM_PRE_BATCH 
+		 where dt between '${starttime}' and '${endtime}'
+	</select>
+	
+	<select id="getPreHandlePointCount" resultType="int">
+		select count(id) from LCRiver_xwdh_2.dbo.COM_PRE_BATCH
+		where id in(select distinct result_id from LCRiver_xwdh_2.dbo.${tableName}_res where instr_no='${point}')
+	</select>
+	
+	<!-- 获得记录总数# -->
+	
+	<!-- 添加分页处理 -->
+	<select id="getAllPreHandleBatchBypage" parameterType="map" resultType="common_prehandle_batch">
+		select * from
+		(select top (#{pagesize} * #{pageindex}) ROW_NUMBER() over
+		(order by LCRiver_xwdh_2.dbo.COM_PRE_BATCH.dt desc ) as rownum,*
+		from
+		LCRiver_xwdh_2.dbo.COM_PRE_BATCH
+		) as temp
+		where temp.rownum > (#{pagesize} *(#{pageindex} -1))
+		order by temp.dt desc
+	</select>
+	<!-- 添加分页处理# -->
+	
+	<select id="getTableNameByBatchId" parameterType="string"  resultType="string"> 
+		select tablename from LCRiver_xwdh_2.dbo.COM_PRE_BATCH where id = #{batchId} 
+	</select>
+	
+	<delete id="deletePreHandleBatchByBatchId">
+		delete from LCRiver_xwdh_2.dbo.COM_PRE_BATCH where id = #{batchId} 
+	</delete>
+	<update id="updateBatchStateByBatchId" parameterType="string" >
+		update LCRiver_xwdh_2.dbo.COM_PRE_BATCH 
+		set statu=1 where id = #{batchId} 
+	</update>	
+	
+	<!-- 添加按时间和测点的分页 -->
+	<select id="getPreHandleResultByTimeByPage" parameterType="map" resultMap="common_prehandle_batch">
+	<!-- SELECT * FROM LCRiver_xwdh_2.dbo.COM_PRE_BATCH
+	where dt between #{starttime} and #{endtime} order by dt desc -->
+		select * from
+		(select top (#{pagesize} * #{pageindex}) ROW_NUMBER() over
+		(order by
+		LCRiver_xwdh_2.dbo.COM_PRE_BATCH.dt desc) as
+		rownum,*
+		from LCRiver_xwdh_2.dbo.COM_PRE_BATCH
+		) as temp
+		where (temp.dt between #{starttime} and #{endtime}) and temp.rownum >
+		(#{pagesize} *(#{pageindex} -1))
+		order by temp.dt desc
+	</select>
+	
+	<select id="getPreHandleResultByPointByPage" parameterType="map" resultType="Entity.AutoPreHandleInfo">
+		SELECT 
+			INSTR_NO,
+			DT,
+			Component,
+			Original,
+			Prehandle,
+			mark
+		FROM
+			LCRiver_xwdh_2.dbo.${tableName}
+		WHERE
+			INSTR_NO = #{point} 
+			<!-- INSTR_NO in (${point}) -->
+		ORDER BY
+			Component,
+			DT
+	</select>
+	<!-- 添加按时间和测点的分页# -->
+	
+	<select id="getPreHandleResultByTime" parameterType="map" resultMap="common_prehandle_batch">
+		SELECT * FROM LCRiver_xwdh_2.dbo.COM_PRE_BATCH 
+		 where dt between #{starttime} and #{endtime}  order by dt desc
+	</select>
+	
+	<select id="getPreHandleResultByPoint" parameterType="map" resultMap="common_prehandle_batch"
+		statementType="STATEMENT">
+		select * from LCRiver_xwdh_2.dbo.COM_PRE_BATCH
+		where id in(select distinct result_id from LCRiver_xwdh_2.dbo.${tableName}_res where instr_no in(${point}))
+		order by dt desc
+	</select>
+	
+	<select id="getPreHandleResult2" parameterType="map" resultType="Entity.AutoPreHandleInfo">
+		SELECT
+			INSTR_NO,
+			DT,
+			Component,
+			Original,
+			Prehandle,
+			mark
+		FROM
+			LCRiver_xwdh_2.dbo.T_ZB_PL_AUTO
+		WHERE
+			INSTR_NO = 'C4-A22-PL-01'
+		AND Component = 'r1'
+		AND dt BETWEEN '2012-01-01'
+		AND '2016-01-01'
+		ORDER BY
+			Component,
+			DT
+	</select>
+</mapper>

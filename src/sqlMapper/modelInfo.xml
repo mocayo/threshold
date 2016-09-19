@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IModelInfoDao">
+	<resultMap type="modelInfo" id="modelInfo">
+		<result property="modelid" column="ModelId"/>
+		<result property="modelname" column="ModelName"/>
+		<result property="modeltype" column="ModelType"/>
+		<result property="isdelete" column="IsDelete"/>
+		<result property="method" column="Method"/> 
+		<result property="isadded" column="IsAdded"/> 
+		<result property="description" column="Description"/> 
+	</resultMap>
+	
+	<select id="getModelById" resultType="modelInfo" parameterType="int">
+		select * from LCRiver_xwdh_2.dbo.MODEL_TABLE where ModelId=#{modelid} and IsAdded = 1
+	</select>
+	
+	<select id="getPredictModel" resultType="modelInfo">
+		<!-- select ModelId,ModelName,IsDelete,Method from MODEL_TABLE -->
+		select * from LCRiver_xwdh_2.dbo.MODEL_TABLE where ModelType=1 and IsAdded = 1 
+		order by ModelName
+	</select>
+	
+	<select id="getPretreatmentModel" resultType="modelInfo">
+		<!-- select ModelId,ModelName,IsDelete,Method from MODEL_TABLE -->
+		select * from LCRiver_xwdh_2.dbo.MODEL_TABLE where ModelType=0 and IsAdded = 1 
+		order by ModelName
+	</select>
+	
+	<select id="getUsedModel" resultType="modelInfo" parameterType="map">
+		select * from LCRiver_xwdh_2.dbo.MODEL_TABLE where ModelType = #{ModelType} and IsAdded=1 and IsDelete = 0
+		order by ModelName
+	</select>
+	
+	<select id="getPremodelToAdd" resultType="modelInfo">
+		select * from LCRiver_xwdh_2.dbo.MODEL_TABLE where ModelType=1 and IsAdded = 0
+	</select>
+	
+	<select id="getPtmmodelToAdd" resultType="modelInfo">
+		select * from LCRiver_xwdh_2.dbo.MODEL_TABLE where ModelType=0 and IsAdded = 0
+	</select>
+	
+	<insert id="addModel" parameterType="map">
+		insert into LCRiver_xwdh_2.dbo.MODEL_TABLE(ModelName,ModelType,Method,IsDelete,IsAdded,Description) 
+		<!-- values('model5',0,'method1,method2',0) -->
+		values (#{modelname},#{modeltype},#{method},#{isdelete},0,#{modelname})
+	</insert>
+	
+	<update id="delModel" parameterType="map">
+		<!-- delete from LCRiver_xwdh_2.dbo.MODEL_TABLE where ModelId = #{modelid} -->
+		update LCRiver_xwdh_2.dbo.MODEL_TABLE set IsDelete = #{isDelete} where ModelId = #{modelid} and IsAdded = 1
+	</update>
+	
+	<update id="updateModel" parameterType="map">
+		update LCRiver_xwdh_2.dbo.MODEL_TABLE set ModelName=#{modelname},Method=#{method} where ModelId = #{modelid}
+	</update>
+	
+	<update id="updateAddModel" parameterType="map">
+		<!-- update LCRiver_xwdh_2.dbo.MODEL_TABLE set ModelName=#{modelname},Method=#{method},IsAdded=1 where ModelId = #{modelid}
+		 -->
+		 update LCRiver_xwdh_2.dbo.MODEL_TABLE set IsAdded=1 where ModelId = #{modelid}
+	</update>
+	
+</mapper>

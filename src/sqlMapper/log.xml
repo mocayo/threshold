@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IDefLogDao">
+	<resultMap type="deflog" id="deflog">
+		<id property="id" column="id"/>
+		<result property="time" column="time"/>
+		<result property="logcontent" column="logcontent"/>
+		<result property="content01" column="content01"/>
+		<result property="content02" column="content02"/>
+	</resultMap>
+	
+	<select id="getLogDate" resultType="String">
+		SELECT distinct CONVERT(varchar(100), time, 23) as time FROM LCRiver_xwdh_1.dbo.DefLog
+	</select>
+	
+	<select id="getLogByDate" parameterType="String" resultMap="deflog">
+		SELECT id,time,logcontent,content01,content02 FROM LCRiver_xwdh_1.dbo.DefLog t where CONVERT(varchar(100), t.time, 23) = #{time}
+	</select>
+	
+	<select id="getLogByTime" parameterType="map" resultMap="deflog">
+		SELECT * FROM LCRiver_xwdh_1.dbo.GNSSLOG where time between #{start} and #{end} order by time desc
+	</select> 
+	
+</mapper>
+	

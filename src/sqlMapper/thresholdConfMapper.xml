@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IThresholdConfDao">
+	<select id="getConfByItem" parameterType="map" resultType="thresholdConf">
+		select * from LCRiver_xwdh_2.dbo.Threshold_Conf where item = #{item} 	
+	</select>
+	
+	<update id="updateConf" parameterType="map">
+		update LCRiver_xwdh_2.dbo.Threshold_Conf 
+		set value = #{value}
+		where item = #{item} and name = #{name}
+	</update>
+	
+	<insert id="addConf" parameterType="map">
+		insert into LCRiver_xwdh_2.dbo.Threshold_Conf(item,name,value,mark)
+		values(#{item},#{name},#{value},#{mark}) 
+	</insert>
+	
+	<delete id="delConf" parameterType="map">
+		delete from LCRiver_xwdh_2.dbo.Threshold_Conf 
+		where item = #{item} and name = #{name}
+	</delete>
+	
+	<select id="getIndexErrorRate" resultType="string">
+		select [value] from LCRiver_xwdh_2.dbo.Threshold_Conf
+		where item = 'index' and name='err_rate'
+	</select>
+	
+	<select id="getAllTableName" resultType="string">
+		SELECT [table] from LCRiver_xwdh_1.dbo.DefTableType
+	</select>
+	
+	<select id="addTableField" parameterType="map">
+		ALTER TABLE LCRiver_xwdh_3.dbo.[${tableName}] add acheck NUMERIC(11) DEFAULT 0
+	</select>
+	
+	<select id="delData" parameterType="map" resultType="int">
+		DELETE from LCRiver_xwdh_3.dbo.[${tableName}] WHERE modelId = 7
+	</select>
+	
+</mapper>

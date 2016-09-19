@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.PointDetailedResultDao">
+	<resultMap type="detailResultInfo" id="detailResultInfo">
+		<result property="INSTR_NO" column="INSTR_NO"/>
+		<result property="DT" column="DT"/>
+		<result property="component" column="component"/>
+		<result property="modelId" column="modelId"/>
+		<result property="WL" column="WL"/>
+		<result property="realVal" column="realVal"/>
+		<result property="prehandle" column="prehandle"/>
+		<result property="mark" column="mark"/>
+		<result property="step" column="step"/>
+		<result property="preVal" column="preVal"/>
+		<result property="err_rate" column="err_rate"/>
+		<result property="isBest" column="isBest"/>
+		<result property="status" column="status"/>
+		<result property="STATICS" column="STATICS"/>
+	</resultMap>
+	
+		
+	<select id="getPointDetailedResultInfo" parameterType="map" resultType="detailResultInfo">
+		<!-- select * from [LCRiver_xwdh_3].[dbo].[${tableName}] where INSTR_NO = '${instr_no}' -->
+		<!-- select * from 
+		(select top (${pagesize} * ${pageindex}) ROW_NUMBER() over (order by INSTR_NO ) as rownum , *
+	  	from [LCRiver_xwdh_3].[dbo].[${tableName}]
+	  	where INSTR_NO = '${instr_no}'
+	 	) as temp
+		where temp.rownum > (${pagesize} *(${pageindex} -1))
+		order by temp.Instr_no -->
+		select * from 
+		(select top (${pagesize} * ${pageindex}) ROW_NUMBER() over (order by INSTR_NO ) as rownum , 
+		INSTR_NO,DT,component,err_rate,modelId,WL,realVal,prehandle,preVal,mt.r1 + '#' + mt.r2 + '#' + mt.r3 as STATICS
+	  	from [LCRiver_xwdh_3].[dbo].[${tableName}],[LCRiver_xwdh_1].[dbo].[MonitorItemType] mt
+	  	where INSTR_NO in(${instr_no})
+	  	and prediction_id = '${preId}'
+	  	and component in(${comp})
+	  	and mt.TABLE_NAME = '${tableName}'
+	  	and dt between '${stime}' and '${etime}'
+	 	) as temp
+		where temp.rownum > (${pagesize} *(${pageindex} -1))
+		order by temp.Instr_no
+	</select>
+	
+	<select id="getPointDetailedResultInfoCount" parameterType="map" resultType="int">
+		select count(component)
+	  	from [LCRiver_xwdh_3].[dbo].[${tableName}]
+	  	where INSTR_NO in(${instr_no})
+	  	and prediction_id = '${preId}'
+	  	and component in(${comp})
+	  	and dt between '${stime}' and '${etime}'
+	</select>
+	
+	<select id="getPointModelIdCount" parameterType="map" resultType="int">
+		select COUNT(temp.modelId) from
+  		(select distinct modelId FROM [LCRiver_xwdh_3].[dbo].[${tableName}]
+  			where INSTR_NO in (${instr_no})
+  			and prediction_id = '${preId}'
+  		)as temp 
+	</select>
+	
+	<insert id="addErrorResultByDay" parameterType="map">
+		insert into [LCRiver_xwdh_3].[dbo].[ErrorResultByDay]([day],[page],[result],[total])
+		values(#{day},#{page},#{result},#{total})
+	</insert>
+	
+	<select id="checkErrorResultByDay" parameterType="map" resultType="int">
+		SELECT DISTINCT
+			COUNT (total)
+		FROM
+			[LCRiver_xwdh_3].[dbo].[ErrorResultByDay]
+		WHERE
+			[day] = #{day}
+		AND [total] > 0
+	</select>
+	
+	<delete id="delErrorResultByDay" parameterType="string">
+		DELETE
+		FROM
+			[LCRiver_xwdh_3].[dbo].[ErrorResultByDay]
+		WHERE
+			total = 0
+		AND [day] = #{day}
+	</delete>
+	
+	<select id="getErrorResultByDay" parameterType="map" resultType="string">
+		SELECT [result]
+		FROM
+			[LCRiver_xwdh_3].[dbo].[ErrorResultByDay]
+		WHERE
+			[day] = #{day}
+		ORDER BY [page]
+	</select>
+	
+	<select id="getErrorResultTotalByDay" parameterType="map" resultType="int">
+		SELECT DISTINCT
+			[total]
+		FROM
+			[LCRiver_xwdh_3].[dbo].[ErrorResultByDay]
+		WHERE
+			[day] = #{day}
+	</select>
+	
+	<!-- 取误差超过限制的点 -->
+	<select id="getErrorPoints" parameterType="map" resultType="detailResultInfo">
+		select INSTR_NO,DT,component,WL,realVal,preVal,err_rate,
+		mt.R1 + '#' + mt.R2 + '#' + mt.R3 + 'unit' + mt.UnitR1 + '#' + mt.UnitR2 + '#' + mt.UnitR3 as STATICS
+		from
+		[LCRiver_xwdh_3].[dbo].[${tableName}],[LCRiver_xwdh_1].[dbo].[MonitorItemType] mt
+		where dt between '${stime}' and '${etime}'
+		and mt.TABLE_NAME = REPLACE('${tableName}', '_RES1', '')
+		and isBest = 1
+		and mark = 1
+		and err_rate > ${err_rate}
+		order by INSTR_NO,err_rate
+	</select>
+	
+	<select id="getMaxDate" resultType="string">
+		SELECT max(dt) from LCRiver_xwdh_3.dbo.T_ZB_PL_AUTO
+	</select>
+	
+	<!-- 之前用过，现在已经废弃 -->
+	<!-- <select id="getErrorPointsByPage" parameterType="map" resultType="detailResultInfo">
+		select INSTR_NO,DT,component,WL,realVal,preVal,err_rate,STATICS from 
+		(select top (${pagesize} * ${pageindex}) ROW_NUMBER() over (order by INSTR_NO,err_rate ) as rownum , 
+		INSTR_NO,DT,component,WL,realVal,preVal,err_rate,
+		mt.R1 + '#' + mt.R2 +  '#' + mt.R3 as STATICS
+	  	from [LCRiver_xwdh_3].[dbo].[${tableName}],[LCRiver_xwdh_1].[dbo].[MonitorItemType] mt
+	  	where dt between  '${stime}' and '${etime}'
+	  	and mt.TABLE_NAME = REPLACE('${tableName}',  '_AUTO', '')
+	  	and isBest = 1
+		and err_rate > 1
+	 	) as temp
+		where temp.rownum > (${pagesize} *(${pageindex} -1))
+		order by INSTR_NO,err_rate
+	</select>
+	
+	<select id="getErrorPointsCount" parameterType="map" resultType="int">
+		select count(INSTR_NO) 
+	  	from [LCRiver_xwdh_3].[dbo].[${tableName}]
+	  	where dt between '${stime}' and '${etime}'
+	  	and isBest = 1
+		and err_rate > 1
+	</select> -->
+	
+	<select id="getKeyPoints" parameterType="map" resultType="detailResultInfo">
+		<!-- DECLARE @maxdt DATE
+		SET @maxdt =
+		(SELECT max(dt) from LCRiver_xwdh_3.dbo.T_ZB_PL_RES1
+		where INSTR_NO = '${instr_no}')
+		SELECT
+		DT,WL,component,err_rate,isBest,t.modelId,m.ModelName as STATICS,preVal,realVal
+		FROM
+		LCRiver_xwdh_3.dbo.T_ZB_PL_AUTO t,LCRiver_xwdh_2.dbo.MODEL_TABLE m
+		WHERE
+		m.ModelId = t.modelId
+		AND INSTR_NO = '${instr_no}'
+		AND dt BETWEEN DATEADD(DAY, ${period}, @maxdt) AND @maxdt
+		AND component = '${comp}'
+		ORDER BY modelId,dt -->
+		<!-- DECLARE @maxdt DATE
+		SET @maxdt =
+		(SELECT max(dt) from LCRiver_xwdh_3.dbo.T_ZB_PL_RES1
+		where INSTR_NO = '${instr_no}')
+		SELECT
+		DT,WL,component,err_rate,isBest,preVal,realVal
+		FROM
+		LCRiver_xwdh_3.dbo.T_ZB_PL_RES1
+		WHERE
+		INSTR_NO = '${instr_no}'
+		AND modelId = 7
+		AND dt BETWEEN DATEADD(DAY, ${period}, @maxdt) AND @maxdt
+		AND component = '${comp}'
+		AND isBest = 1
+		ORDER BY dt -->
+		<!-- SELECT
+			*
+		FROM
+			(
+				SELECT
+					TOP ${period} DT,
+					WL,
+					component,
+					err_rate,
+					isBest,
+					preVal,
+					realVal
+				FROM
+					LCRiver_xwdh_3.dbo.T_ZB_PL_RES1
+				WHERE
+					INSTR_NO = '${instr_no}'
+				AND component = '${comp}'
+				AND isBest = 1
+				ORDER BY
+					dt DESC
+			) AS tm
+		ORDER BY dt -->
+		SELECT
+			DT,
+			WL,
+			component,
+			err_rate,
+			isBest,
+			preVal,
+			realVal
+		FROM
+			LCRiver_xwdh_3.dbo.T_ZB_PL_RES1
+		WHERE
+			INSTR_NO = '${instr_no}'
+		AND component = '${comp}'
+		AND isBest = 1
+		AND dt BETWEEN #{start} AND #{end}
+		ORDER BY dt
+	</select>
+	
+	<select id="getErrateByPoint" parameterType="map" resultType="Entity.PointError">
+		SELECT
+			DT,err_rate
+		FROM
+			LCRiver_xwdh_3.dbo.${table}
+		WHERE
+			INSTR_NO = '${instr_no}'
+		AND component = '${comp}'
+		AND isBest = 1
+	</select>
+	
+</mapper>

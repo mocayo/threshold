@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ICommonPreHandleFinalDao">
+	<resultMap type="common_prehandle_final" id="common_prehandle_final">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<id property="result_id" column="result_id"/>
+		<result property="handle_time" column="handle_time"/>
+		<result property="r1" column="r1"/>
+		<result property="r2" column="r2"/>
+		<result property="r3" column="r3"/>
+		<result property="handle_r1_result" column="handle_r1_result"/>
+		<result property="handle_r2_result" column="handle_r2_result"/>
+		<result property="handle_r3_result" column="handle_r3_result"/>
+	</resultMap>
+	
+	<select id="findPreHandleResult" parameterType="map" resultMap="common_prehandle_final" statementType="STATEMENT">
+		select * from LCRiver_xwdh_2.dbo.${tableName}_FINAL  where instr_no='${instr_no}' and dt='${dt}'
+	</select>
+	<update id="updatePreHandleResult" parameterType="map" statementType="STATEMENT">
+		update LCRiver_xwdh_2.dbo.${tableName}_FINAL set 
+		result_id='${result_id}',handle_time='${handle_time}',
+		handle_r1_result=${handle_r1_result},handle_r2_result=${handle_r2_result},
+		handle_r3_result=${handle_r3_result}
+		where instr_no='${instr_no}' and dt='${dt}'
+	</update>
+	<insert id="insertPreHandleResult" parameterType="map" statementType="STATEMENT">
+		insert into LCRiver_xwdh_2.dbo.${tableName}_FINAL
+		(instr_no,dt,result_id,handle_time,r1,r2,r3,handle_r1_result,handle_r2_result,handle_r3_result)
+		values ('${instr_no}','${dt}','${result_id}','${handle_time}',${r1},${r2},${r3}
+				,${handle_r1_result},${handle_r2_result},${handle_r3_result})
+	</insert>
+	
+	<delete id="deletePreHandleFinalByBatchId" parameterType="map" statementType="STATEMENT">
+		delete from LCRiver_xwdh_2.dbo.${tableName}_FINAL where result_id = '${batchId}'
+	</delete>
+	
+</mapper>

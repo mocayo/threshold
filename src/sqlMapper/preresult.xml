@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IPRERESULTDao">
+	<resultMap type="preresult" id="preresult">
+		<result property="id" column="id"/>
+		<result property="dt" column="dt"/>
+		<result property="resultdiscript" column="resultdiscript"/>
+		<result property="statu" column="statu"/>
+		<result property="setaside1" column="setaside1"/>
+		<result property="setaside1" column="setaside2"/>
+	</resultMap>
+	<select id="getAllResult" resultType="preresult">
+		SELECT * FROM LCRiver_xwdh_2.dbo.T_PRE_RESULT order by dt desc
+		<!-- select designcode from LCRiver_xwdh_1.definssort where type=#{type} -->
+	</select>
+	<select id="getInfoById" parameterType="String" resultType="preresult"> 
+		SELECT * FROM LCRiver_xwdh_2.dbo.T_PRE_RESULT where id = #{id} order by dt desc
+		<!-- select designcode from LCRiver_xwdh_1.definssort where type=#{type} -->
+	</select>
+	<select id="getResultByTime" parameterType="map" resultMap="preresult">
+		SELECT * FROM LCRiver_xwdh_2.dbo.T_PRE_RESULT t where t.dt between #{starttime} and #{endtime}  order by dt desc
+		<!-- SELECT * FROM LCRiver_xwdh_2.T_PRE_RESULT t where t.dt between #{starttime} and #{endtime} order by dt desc -->
+	</select>
+	
+	<select id="getResultByPoint" parameterType="String" resultMap="preresult">
+		select * from LCRiver_xwdh_2.dbo.T_PRE_RESULT where id in(select distinct result_id from LCRiver_xwdh_2.dbo.t_zb_pl_res where instr_no=#{point})
+		<!-- select * from LCRiver_xwdh_2.T_PRE_RESULT where id in(select distinct result_id from LCRiver_xwdh_2.t_zb_pl_res where instr_no=#{point}) -->
+	</select>
+	
+	<delete id="deletePreResult" parameterType="String">
+		delete from LCRiver_xwdh_2.dbo.T_PRE_RESULT where id=#{id}
+		delete from LCRiver_xwdh_2.dbo.T_ZB_PL_RES  where result_id=#{id}
+	</delete>
+	
+	<insert id="addPreResult" parameterType="map">
+		insert into LCRiver_xwdh_2.dbo.T_PRE_RESULT([id],[dt],[resultdiscript],[statu])
+		values (#{id},#{dt},#{resultdiscript},#{statu})
+	</insert>
+	
+	<update id="updStatById" parameterType="String">
+		update LCRiver_xwdh_2.dbo.T_PRE_RESULT set [statu] = '1' where [id] = #{id}
+	</update>
+</mapper>

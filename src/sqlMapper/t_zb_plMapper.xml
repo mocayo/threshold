@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_ZB_PLDao">
+	<resultMap type="t_zb_pl" id="t_zb_pl">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<id property="prediction_id" column="prediction_id"/>
+		<result property="displace_x" column="displace_x"/>
+		<result property="wl" column="wl"/>
+		<result property="displace_y" column="displace_y"/>
+		<result property="displace_x_step" column="displace_x_step" />
+		<result property="displace_x_model" column="displace_x_model"/>
+		<result property="displace_x_pred" column="displace_x_pred"/>
+		<result property="displace_x_error" column="displace_x_error"/>
+		<result property="displace_x_err_rate" column="displace_x_err_rate"/>
+		<result property="displace_x_err_level" column="displace_x_err_level"/>
+		<result property="displace_y_step" column="displace_y_step" />
+		<result property="displace_y_model" column="displace_y_model"/>
+		<result property="displace_y_pred" column="displace_y_pred"/>
+		<result property="displace_y_error" column="displace_y_error"/>
+		<result property="displace_y_err_rate" column="displace_y_err_rate"/>
+		<result property="displace_y_err_level" column="displace_y_err_level"/>
+		<result property="displace_x_mid_result" column="displace_x_mid_result"/>
+		<result property="displace_y_mid_result" column="displace_y_mid_result"/>
+		<result property="note" column="note"/>
+		
+	</resultMap>
+	
+	
+	<select id="getPointDataPL" parameterType="map" resultMap="t_zb_pl">
+		select * from LCRiver_xwdh_3.dbo.T_ZB_PL where instr_no =#{instr_no} and dt between #{starttime} and #{endtime}
+	</select>
+	
+
+	
+	<select id="resultById" parameterType="String" resultMap="t_zb_pl">
+	SELECT * FROM [LCRiver_xwdh_3].[dbo].[T_ZB_PL]
+		WHERE [prediction_id] = #{preId}
+<!-- 		and [INSTR_NO] = 'C4-A22-PL-04' -->
+		ORDER BY instr_no, dt desc
+<!-- 		SELECT TOP ${len} * -->
+<!-- 		FROM [LCRiver_xwdh_3].[dbo].[T_ZB_PL] -->
+<!-- 		WHERE  -->
+<!-- 		[prediction_id] = #{preId} -->
+<!-- 		and -->
+<!-- 		instr_no > -->
+<!--           ( -->
+<!--           SELECT ISNULL(MAX(instr_no),0)  -->
+<!--           FROM  -->
+<!--                 ( -->
+<!--                 SELECT TOP ${start} instr_no from LCRiver_xwdh_3.dbo.model_para where [prediction_id] = #{preId} ORDER BY instr_no, dt desc -->
+<!--                 ) A -->
+<!--           ) -->
+<!-- 		ORDER BY instr_no, dt desc -->
+	</select>
+	
+	<select id="getExceptionDetial" parameterType="map" resultMap="t_zb_pl">
+		select * from [LCRiver_xwdh_3].[dbo].[T_ZB_PL] where [prediction_id] = #{[preId]} 
+			and [DT] = #{dateS}
+			
+	</select>
+	
+	<select id="resultByParas" parameterType="map" resultMap="t_zb_pl">
+	SELECT * FROM [LCRiver_xwdh_3].[dbo].[T_ZB_PL]
+		WHERE 
+		[prediction_id] in (
+			select id from LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION where 1=1
+			and dt between #{sTime} and #{eTime}
+			<if test="det_instr!=''"> and det_instr = (select c.[table] from [LCRiver_xwdh_1].[dbo].[DefTableType] c where c.type = #{det_type})</if>
+			<if test="dam_no!=''"> and dam_no = #{dam_no}</if>
+			<if test="obser_no!=''"> and obser_no = #{obser_no}</if>
+			<if test="pre_component!=''"> and pre_component = #{pre_component}</if>
+			) 
+		ORDER BY instr_no, dt desc
+<!-- 		SELECT TOP ${len} * -->
+<!-- 		FROM [LCRiver_xwdh_3].[dbo].[T_ZB_PL] -->
+<!-- 		WHERE  -->
+<!-- 		[prediction_id] in ( -->
+<!-- 			select id from LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION where 1=1 -->
+<!-- 			<if test="det_instr!=''"> and det_instr = #{det_instr}</if> -->
+<!-- 			<if test="dam_no!=''"> and dam_no = #{dam_no}</if> -->
+<!-- 			<if test="obser_no!=''"> and obser_no = #{obser_no}</if> -->
+<!-- 			<if test="pre_component!=''"> and pre_component = #{pre_component}</if> -->
+<!-- 			)  -->
+<!-- 		and -->
+<!-- 		instr_no > -->
+<!--           ( -->
+<!--           SELECT ISNULL(MAX(instr_no),0)  -->
+<!--           FROM  -->
+<!--                 ( -->
+<!--                 SELECT TOP ${start} instr_no from LCRiver_xwdh_3.dbo.model_para where [prediction_id] in ( -->
+<!-- 			select id from LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION where 1=1 -->
+<!-- 			<if test="det_instr!=''"> and det_instr = #{det_instr}</if> -->
+<!-- 			<if test="dam_no!=''"> and dam_no = #{dam_no}</if> -->
+<!-- 			<if test="obser_no!=''"> and obser_no = #{obser_no}</if> -->
+<!-- 			<if test="pre_component!=''"> and pre_component = #{pre_component}</if> -->
+<!-- 			)  ORDER BY instr_no, dt desc -->
+<!--                 ) A -->
+<!--           ) -->
+<!-- 		ORDER BY instr_no, dt desc -->
+	</select>
+	
+	<select id="countResultById" parameterType="String" resultType="java.lang.Integer">
+		select count(*) as NUM from [LCRiver_xwdh_3].[dbo].[T_ZB_PL] where [prediction_id] = #{preId}
+	</select>
+	
+	<select id="countResultByParas" parameterType="map" resultType="java.lang.Integer">
+		select count(*) as NUM from [LCRiver_xwdh_3].[dbo].[T_ZB_PL] where [prediction_id] in (
+			select id from LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION where 1=1
+			and dt between #{sTime} and #{eTime}
+			<if test="det_instr!=''"> and det_instr = (select c.[table] from [LCRiver_xwdh_1].[dbo].[DefTableType] c where c.type = #{det_type})</if>
+			<if test="dam_no!=''"> and dam_no = #{dam_no}</if>
+			<if test="obser_no!=''"> and obser_no = #{obser_no}</if>
+			<if test="pre_component!=''"> and pre_component = #{pre_component}</if>
+			) 
+	</select>
+	
+	<insert id="add_pl_x_res" parameterType="map">
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[T_ZB_PL](
+			[INSTR_NO],[DT],[DISPLACE_X],[DISPLACE_X_STEP],[DISPLACE_X_MODEL],[DISPLACE_X_PRED],[DISPLACE_X_ERROR],[DISPLACE_X_ERR_RATE],[DISPLACE_X_ERR_LEVEL],[DISPLACE_X_MID_RESULT],[PREDICTION_ID],[wl]) 
+		VALUES(#{instr_no},#{dt},#{displace_x},#{displace_x_step},#{displace_x_model},#{displace_x_pred},#{displace_x_error},#{displace_x_err_rate},#{displace_x_err_level},#{displace_x_mid_result},#{prediction_id},#{wl})
+	</insert>
+	
+	<insert id="add_pl_y_res" parameterType="map">
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[T_ZB_PL](
+			[INSTR_NO],[DT],[DISPLACE_Y],[DISPLACE_Y_STEP],[DISPLACE_Y_MODEL],[DISPLACE_Y_PRED],[DISPLACE_Y_ERROR],[DISPLACE_Y_ERR_RATE],[DISPLACE_Y_ERR_LEVEL],[DISPLACE_Y_MID_RESULT],[PREDICTION_ID]) 
+		VALUES(#{instr_no},#{dt},#{displace_y},#{displace_y_step},#{displace_y_model},#{displace_y_pred},#{displace_y_error},#{displace_y_err_rate},#{displace_y_err_level},#{displace_y_mid_result},#{prediction_id})		
+	</insert>
+
+	<select id="getMidModel" parameterType="String" resultType="String">
+			select [DISPLACE_X_MID_RESULT] from [LCRiver_xwdh_3].[dbo].[T_ZB_PL] where prediction_id = #{prediction_id}
+<!-- 			DT between #{startTime} and #{endTime}  -->
+<!-- 			and INSTR_NO = #{instr_no} group by DT -->
+	</select>
+
+</mapper>

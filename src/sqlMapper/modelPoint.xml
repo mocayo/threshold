@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IModelPointDao">
+	<resultMap type="modelPointInfo" id="modelPointInfo">
+		<result property="Instr_no" column="Instr_no"/>
+		<result property="R1" column="R1"/>
+		<result property="R2" column="R2"/>
+		<result property="R3" column="R3"/>
+		<result property="MonitorItem" column="MonitorItem"/>
+		<result property="ModelId" column="ModelId"/>
+		<result property="PointType" column="PointType"/>
+	</resultMap>
+	
+	<insert id="addModelPoint" parameterType="map">
+		insert into LCRiver_xwdh_2.dbo.MODEL_POINT(Instr_no,R1,R2,R3,MonitorItem,PointType) 
+		values(#{Instr_no},#{R1},#{R2},#{R3},#{MonitorItem},#{PointType})
+	</insert>
+	
+	<select id="getCaculatePoints" parameterType="String" resultMap="modelPointInfo">
+	    SELECT  m.[DesignCode] as Instr_no, t.R1,t.R2,t.R3 FROM 
+  		[LCRiver_xwdh_1].[dbo].[DefInsSort] m left join [LCRiver_xwdh_2].[dbo].[MODEL_POINT] t 
+ 		on m.[DesignCode] = t.Instr_no LEFT JOIN [LCRiver_xwdh_1].[dbo].[DefTableType] p on p.type = m.type 
+ 		where m.isCaculated = 1 and p.[table] = #{tableName}
+	</select>
+	
+	<select id="getPointsInfo" parameterType="String" resultMap="modelPointInfo">
+	    SELECT  m.[DesignCode] as Instr_no,m.[type] ,t.[table] as MonitorItem
+  FROM [LCRiver_xwdh_1].[dbo].[DefInsSort] m left join [LCRiver_xwdh_1].[dbo].[DefTableType] t
+  on m.[type] = t.[type]
+  where mapId = #{mapId} and m.isCaculated = 1
+	</select>
+	
+	<select id="getMapIds" parameterType="String" resultType="String">
+		select id from LCRiver_xwdh_1.dbo.Monitor_Map where basicId = #{basicId}
+	</select>
+	
+	<select id="getModelPointByType" parameterType="String" resultType="modelPointInfo">
+		select * from LCRiver_xwdh_2.dbo.MODEL_POINT 
+		where PointType=#{PointType}
+		order by Instr_no
+	</select>
+	
+	<select id="getModelPoint" parameterType="map" resultType="modelPointInfo">
+		select * from LCRiver_xwdh_2.dbo.MODEL_POINT 
+		where Instr_no=#{Instr_no} and PointType=#{PointType}
+		order by Instr_no
+	</select>
+
+	<update id="updateModelPoint" parameterType="map">
+		update LCRiver_xwdh_2.dbo.MODEL_POINT set R1=#{R1},R2=#{R2},R3=#{R3} 
+		where Instr_no=#{Instr_no} and PointType=#{PointType}
+	</update>
+	
+	<select id="countRecords" parameterType="string" resultType="int">
+		select count(Instr_no) from LCRiver_xwdh_2.dbo.MODEL_POINT where PointType=#{PointType}
+	</select>
+	
+	<select id="getModelPointByPage" parameterType="map" resultType="modelPointInfo">
+		select * from 
+		(select top (#{pagesize} * #{pageindex}) ROW_NUMBER() over (order by LCRiver_xwdh_2.dbo.MODEL_POINT.Instr_no ) as rownum , *
+	  	from LCRiver_xwdh_2.dbo.MODEL_POINT
+	  	where PointType=#{PointType}
+	 	) as temp
+		where temp.rownum > (#{pagesize} *(#{pageindex} -1))
+		order by temp.Instr_no
+	</select>
+	
+	<select id="getPointComponent" parameterType="map" resultType="modelPointInfo">
+		select *
+		from LCRiver_xwdh_2.dbo.MODEL_POINT
+		where PointType='${PointType}' and Instr_no in(${Instr_no})
+	</select>
+	
+	<select id="getComponentByPoint" parameterType="map" resultType="string">
+		SELECT
+			R1 + '#' + R2 + '#' + R3
+		FROM
+			LCRiver_xwdh_1.dbo.MonitorItemType
+		WHERE
+			type IN (
+				SELECT
+					type
+				FROM
+					LCRiver_xwdh_1.dbo.DefInsSort
+				WHERE
+					DesignCode = #{point}
+			)
+	</select>
+	
+</mapper>

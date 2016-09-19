@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ISigamaDao">
+	<resultMap type="sigama" id="sigama">
+		<id property="instr_no" column="instr_no"/>
+		<id property="component" column="component"/>
+		<id property="dt" column="dt"/>
+		<result property="stdevpVal" column="stdevpVal"/>
+		<result property="SV" column="SV"/>
+	</resultMap>
+	
+	<delete id="delSigama" parameterType="map">
+		delete from LCRiver_xwdh_3.DBO.${tableName}_sigama
+			where m.dt = #{dt}
+	</delete>
+	
+	<update id="updBySigama" parameterType="map">
+		update m set unCaculated = 1 from LCRiver_xwdh_3.dbo.${tableName}_RES1 m , 
+			(select * from LCRiver_xwdh_3.dbo.${tableName}_sigama where dt = #{dt}
+			and sv = 3) tmp
+			where m.INSTR_NO = tmp.instr_no and m.component = tmp.component and m.dt = tmp.dt
+	</update>
+	
+	<update id="updByMark" parameterType="map">
+		UPDATE LCRiver_xwdh_3.dbo.${tableName}_RES1 m set unCaculated = 1 where mark = 0
+		and dt = #{dt}
+	</update>
+	
+	<insert id="addGreen" parameterType="map">
+	insert into LCRiver_xwdh_3.DBO.${tableName}_sigama 
+	(instr_no,component,DT,stdevpVal,SV)
+	select m.INSTR_NO,m.component,m.DT,stdevpVal,1 SV from
+	LCRiver_xwdh_3.DBO.${tableName}_RES1 m ,
+	(
+	select t1.INSTR_NO,t1.component ,SQRT(sum(SQUARE( preVal - avgV))/total )
+	stdevpVal FROM LCRiver_xwdh_3.DBO.${tableName}_RES1 t1,
+	(select instr_no,component, COUNT(dt) total,AVG(realVal) avgV FROM
+	LCRiver_xwdh_3.DBO.${tableName}_RES1
+	WHERE isBest = 1 and dt &lt; '${dt}' and (unCaculated is null or unCaculated != 1)
+	group by INSTR_NO,component) t
+	WHERE t1.isBest = 1
+	and t1.dt &lt; '${dt}'
+	and t.INSTR_NO = t1.INSTR_NO
+	and t.component = t1.component
+	and (t1.unCaculated is null or t1.unCaculated != 1)
+	group by total,t1.INSTR_NO,t1.component )st
+	where m.INSTR_NO = st.INSTR_NO
+	and m.dt = #{dt}
+	and m.component = st.component
+	and abs(m.preVal - m.realVal) BETWEEN 0*stdevpVal and 2*stdevpVal
+	and m.isBest = 1
+	and (m.unCaculated is null or m.unCaculated != 1)
+	group by m.instr_no, m.component,m.DT,stdevpVal
+	order by m.INSTR_NO ,m.component
+	</insert>
+	
+	<insert id="addOrange" parameterType="map">
+	insert into LCRiver_xwdh_3.DBO.${tableName}_sigama 
+	(instr_no,component,DT,stdevpVal,SV)
+	select m.INSTR_NO,m.component,m.DT,stdevpVal,2 SV from
+	LCRiver_xwdh_3.DBO.${tableName}_RES1 m ,
+	(
+	select t1.INSTR_NO,t1.component ,SQRT(sum(SQUARE( preVal - avgV))/total )
+	stdevpVal FROM LCRiver_xwdh_3.DBO.${tableName}_RES1 t1,
+	(select instr_no,component, COUNT(dt) total,AVG(realVal) avgV FROM
+	LCRiver_xwdh_3.DBO.${tableName}_RES1
+	WHERE isBest = 1 and dt &lt; '${dt}' and (unCaculated is null or unCaculated != 1)
+	group by INSTR_NO,component) t
+	WHERE t1.isBest = 1
+	and t1.dt &lt; '${dt}'
+	and t.INSTR_NO = t1.INSTR_NO
+	and t.component = t1.component
+	and (t1.unCaculated is null or t1.unCaculated != 1)
+	group by total,t1.INSTR_NO,t1.component )st
+	where m.INSTR_NO = st.INSTR_NO
+	and m.dt = #{dt}
+	and m.component = st.component
+	and abs(m.preVal - m.realVal) BETWEEN 2*stdevpVal and 3*stdevpVal
+	and m.isBest = 1
+	and (m.unCaculated is null or m.unCaculated != 1)
+	group by m.instr_no, m.component,m.DT,stdevpVal
+	order by m.INSTR_NO ,m.component
+	</insert>
+	
+	<insert id="addRed" parameterType="map">
+	insert into LCRiver_xwdh_3.DBO.${tableName}_sigama 
+	(instr_no,component,DT,stdevpVal,SV)
+	select m.INSTR_NO,m.component,m.DT,stdevpVal,3 SV from
+	LCRiver_xwdh_3.DBO.${tableName}_RES1 m ,
+	(
+	select t1.INSTR_NO,t1.component ,SQRT(sum(SQUARE( preVal - avgV))/total )
+	stdevpVal FROM LCRiver_xwdh_3.DBO.${tableName}_RES1 t1,
+	(select instr_no,component, COUNT(dt) total,AVG(realVal) avgV FROM
+	LCRiver_xwdh_3.DBO.${tableName}_RES1
+	WHERE isBest = 1 and dt &lt; '${dt}' and (unCaculated is null or unCaculated != 1)
+	group by INSTR_NO,component) t
+	WHERE t1.isBest = 1
+	and t1.dt &lt; '${dt}'
+	and t.INSTR_NO = t1.INSTR_NO
+	and t.component = t1.component
+	and (t1.unCaculated is null or t1.unCaculated != 1)
+	group by total,t1.INSTR_NO,t1.component )st
+	where m.INSTR_NO = st.INSTR_NO
+	and m.dt = #{dt}
+	and m.component = st.component
+	and abs(m.preVal - m.realVal) &gt;= 3*stdevpVal
+	and m.isBest = 1
+	and (m.unCaculated is null or m.unCaculated != 1)
+	group by m.instr_no, m.component,m.DT,stdevpVal
+	order by m.INSTR_NO ,m.component
+	</insert>
+	
+	
+</mapper>

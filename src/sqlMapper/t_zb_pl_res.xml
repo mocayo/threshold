@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_ZB_PL_ResDao">
+	<resultMap type="t_zb_pl_res" id="t_zb_pl_res">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<id property="result_id" column="result_id"/>
+		<result property="handle_time" column="handle_time"/>
+		<result property="displace_x" column="displace_x"/>
+		<result property="displace_y" column="displace_y"/>
+		<result property="handle_x_result" column="handle_x_result"/>
+		<result property="people_x_handle" column="people_x_handle"/>
+		<result property="handle_y_result" column="handle_y_result"/>
+		<result property="people_y_handle" column="people_y_handle"/>
+	</resultMap>
+	
+	<resultMap type="predict_data" id="predict_data">
+		<result property="wl" column="wl"/>
+		<result property="data" column="data"/>
+	</resultMap>
+	
+	<select id="getLatestTime" parameterType="String" resultType="String">
+		select max(handle_time) from LCRiver_xwdh_2.dbo.T_ZB_PL_RES  where instr_no=#{instr_no}
+	</select>
+	
+	<insert id="add_pl_x_res" parameterType="map">
+		insert into LCRiver_xwdh_2.dbo.T_ZB_PL_RES
+		([instr_no],[dt],[result_id],[handle_time],[displace_x],[handle_x_result],[people_x_handle])
+		values (#{instr_no},#{dt},#{result_id},#{handle_time},#{displace_x},#{handle_x_result},#{people_x_handle})
+	</insert>
+	
+	<insert id="add_pl_y_res" parameterType="map">
+		insert into LCRiver_xwdh_2.dbo.T_ZB_PL_RES
+		([instr_no],[dt],[result_id],[handle_time],[displace_y],[handle_y_result])
+		values (#{instr_no},#{dt},#{result_id},#{handle_time},#{displace_y},#{handle_y_result})
+	</insert>
+	
+	<update id="update_pl_y_res" parameterType="map">
+		update LCRiver_xwdh_2.dbo.T_ZB_PL_RES set displace_y=#{displace_y},handle_y_result=#{handle_y_result},people_y_handle = #{people_y_handle} 
+		where instr_no=#{instr_no} and dt=#{dt} and result_id=#{result_id}
+	</update>
+	
+	<select id="getAllCountByResultId" parameterType="String" resultType="int"> 
+		SELECT count(*) FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id}
+	</select>
+	
+	<select id="getAutoFCountByResultId" parameterType="String" resultType="int"> 
+ 		SELECT count(*) FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id} and (handle_x_result = 0 or handle_y_result = 0) 
+	</select>
+	
+	<select id="getExceptionCountByResultId" parameterType="String" resultType="int"> 
+<!-- 		SELECT count(*) FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id} and (handle_x_result = 1 or handle_y_result = 1) -->
+		SELECT count(*) FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id}
+							and (([PEOPLE_X_HANDLE] = '0' or [PEOPLE_Y_HANDLE] = '0') or ([PEOPLE_X_HANDLE] = '-1' and [PEOPLE_Y_HANDLE] = '-1' and ([HANDLE_X_RESULT] = '0' or [HANDLE_Y_RESULT] = '0'))
+								or ([PEOPLE_X_HANDLE] = '1' and [PEOPLE_Y_HANDLE] = '-1' and [HANDLE_Y_RESULT] = '0')
+								or ([PEOPLE_Y_HANDLE] = '1' and [PEOPLE_X_HANDLE] = '-1' and [HANDLE_X_RESULT] = '0'))
+	</select>
+	
+	<select id="getNomoralCountByResultId" parameterType="String" resultType="int"> 
+		SELECT count(*) FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id}
+							and( (PEOPLE_X_HANDLE = '-1' and PEOPLE_Y_HANDLE = '-1' and HANDLE_X_RESULT = '1' and HANDLE_Y_RESULT = '1') 
+								or (PEOPLE_X_HANDLE = '1' and PEOPLE_Y_HANDLE = '-1' and HANDLE_Y_RESULT = '1') 
+								or (PEOPLE_Y_HANDLE = '1' and PEOPLE_X_HANDLE = '-1' and HANDLE_X_RESULT = '1') 
+								or (PEOPLE_X_HANDLE = '1' and PEOPLE_Y_HANDLE = '1') )
+	</select>
+	
+	<select id="getAllByResultId" parameterType="map" resultMap="t_zb_pl_res">
+		SELECT TOP ${len} * FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id} 
+			and instr_no+CONVERT(varchar(100), dt, 120)+result_id >
+				(
+					SELECT ISNULL(MAX(pid),0) from (
+						SELECT TOP ${start} (instr_no+CONVERT(varchar(100), dt, 120)+result_id) as pid 
+							FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id} 
+							order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+					) A
+	 			)
+ 				order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+	</select>
+
+	<select id="getTByResultId" parameterType="map" resultMap="t_zb_pl_res">
+		SELECT TOP ${len} * FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id} 
+		 	and( (PEOPLE_X_HANDLE = '-1' and PEOPLE_Y_HANDLE = '-1' and HANDLE_X_RESULT = '1' and HANDLE_Y_RESULT = '1') 
+								or (PEOPLE_X_HANDLE = '1' and PEOPLE_Y_HANDLE = '-1' and HANDLE_Y_RESULT = '1') 
+								or (PEOPLE_Y_HANDLE = '1' and PEOPLE_X_HANDLE = '-1' and HANDLE_X_RESULT = '1') 
+								or (PEOPLE_X_HANDLE = '1' and PEOPLE_Y_HANDLE = '1') )
+				and instr_no+CONVERT(varchar(100), dt, 120)+result_id >
+				(
+					SELECT ISNULL(MAX(pid),0) from (
+						SELECT TOP ${start} (instr_no+CONVERT(varchar(100), dt, 120)+result_id) as pid FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id} 
+		 				and( (PEOPLE_X_HANDLE = '-1' and PEOPLE_Y_HANDLE = '-1' and HANDLE_X_RESULT = '1' and HANDLE_Y_RESULT = '1') 
+								or (PEOPLE_X_HANDLE = '1' and PEOPLE_Y_HANDLE = '-1' and HANDLE_Y_RESULT = '1') 
+								or (PEOPLE_Y_HANDLE = '1' and PEOPLE_X_HANDLE = '-1' and HANDLE_X_RESULT = '1') 
+								or (PEOPLE_X_HANDLE = '1' and PEOPLE_Y_HANDLE = '1') )  order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+					) A
+	 			)
+ 				order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+	</select>
+	
+	<select id="getFByResultId" parameterType="String" resultMap="t_zb_pl_res">
+		SELECT TOP ${len} * FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id}
+			and (([PEOPLE_X_HANDLE] = '0' or [PEOPLE_Y_HANDLE] = '0') or ([PEOPLE_X_HANDLE] = '-1' and [PEOPLE_Y_HANDLE] = '-1' and ([HANDLE_X_RESULT] = '0' or [HANDLE_Y_RESULT] = '0'))
+				or ([PEOPLE_X_HANDLE] = '1' and [PEOPLE_Y_HANDLE] = '-1' and [HANDLE_Y_RESULT] = '0')
+				or ([PEOPLE_Y_HANDLE] = '1' and [PEOPLE_X_HANDLE] = '-1' and [HANDLE_X_RESULT] = '0'))
+				and instr_no+CONVERT(varchar(100), dt, 120)+result_id >
+				(
+					SELECT ISNULL(MAX(pid),0) from (
+						SELECT TOP ${start} (instr_no+CONVERT(varchar(100), dt, 120)+result_id) as pid FROM LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id = #{result_id}
+							and (([PEOPLE_X_HANDLE] = '0' or [PEOPLE_Y_HANDLE] = '0') or ([PEOPLE_X_HANDLE] = '-1' and [PEOPLE_Y_HANDLE] = '-1' and ([HANDLE_X_RESULT] = '0' or [HANDLE_Y_RESULT] = '0'))
+								or ([PEOPLE_X_HANDLE] = '1' and [PEOPLE_Y_HANDLE] = '-1' and [HANDLE_Y_RESULT] = '0')
+								or ([PEOPLE_Y_HANDLE] = '1' and [PEOPLE_X_HANDLE] = '-1' and [HANDLE_X_RESULT] = '0'))
+							order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+					) A
+	 			)
+ 				order by instr_no,CONVERT(varchar(100), dt, 120),result_id
+				
+	</select>
+	
+	<update id="handleUpdate" parameterType="map">
+		 
+		<if test="idStr == 0">update [LCRiver_xwdh_2].[dbo].[T_ZB_PL_RES] set people_x_handle = #{handleTag} where INSTR_NO = #{instr_no} and dt = #{dt} and result_id = #{result_id}</if>
+		<if test="idStr == 1">update [LCRiver_xwdh_2].[dbo].[T_ZB_PL_RES] set people_y_handle = #{handleTag} where INSTR_NO = #{instr_no} and dt = #{dt} and result_id = #{result_id}</if>
+	</update>
+	
+	<select id="getDataXByIdTm" parameterType="map" resultType="predict_data"> 
+		select top 100 t2.WL as wl, t1.DISPLACE_X as data
+		from [LCRiver_xwdh_2].[dbo].[T_ZB_PL] as t1,  [LCRiver_xwdh_2].[dbo].[T_WATER_LEVEL] as t2
+		where t1.INSTR_NO = #{instr_no} and t1.DT &lt; #{dt} and CONVERT(varchar(10),t1.DT,120) = CONVERT(varchar(10),t2.DT,120) and t1.DISPLACE_X is not null
+		order by t1.DT desc
+	</select>
+	
+	<select id="getDataXByIdTm2" parameterType="map" resultType="predict_data"> 
+		select top 100 t2.WL as wl, t1.DISPLACE_X as data
+		from [LCRiver_xwdh_2].[dbo].[T_ZB_PL] as t1,  [LCRiver_xwdh_2].[dbo].[T_WATER_LEVEL] as t2
+		where t1.INSTR_NO = #{instr_no} and t1.DT = #{dt} and CONVERT(varchar(10),t1.DT,120) = CONVERT(varchar(10),t2.DT,120) and t1.DISPLACE_X is not null
+		order by t1.DT desc
+	</select>
+	
+	<select id="getDataYByIdTm" parameterType="map" resultType="predict_data"> 
+		select top 100 t2.WL as wl, t1.DISPLACE_Y as data
+		from [LCRiver_xwdh_2].[dbo].[T_ZB_PL] as t1,  [LCRiver_xwdh_2].[dbo].[T_WATER_LEVEL] as t2
+		where t1.INSTR_NO = #{instr_no} and t1.DT &lt;= #{dt} and CONVERT(varchar(10),t1.DT,120) = CONVERT(varchar(10),t2.DT,120) and t1.DISPLACE_Y is not null
+		order by t1.DT desc
+	</select>
+	
+	<select id="getDataYByIdTm2" parameterType="map" resultType="predict_data"> 
+		select top 100 t2.WL as wl, t1.DISPLACE_Y as data
+		from [LCRiver_xwdh_2].[dbo].[T_ZB_PL] as t1,  [LCRiver_xwdh_2].[dbo].[T_WATER_LEVEL] as t2
+		where t1.INSTR_NO = #{instr_no} and t1.DT = #{dt} and CONVERT(varchar(10),t1.DT,120) = CONVERT(varchar(10),t2.DT,120) and t1.DISPLACE_Y is not null
+		order by t1.DT desc
+	</select>
+	
+	<select id="getTimeListByIdTm" parameterType="map" resultType="String"> 
+		select DISTINCT DT
+	    from LCRiver_xwdh_2.dbo.T_ZB_PL_RES
+	    where INSTR_NO = #{instr_no} and DT &gt;= #{startTime} and DT &lt;= #{endTime}
+	    order by dt
+	</select>
+	
+	<select id="getAllResultByResultId" parameterType="string" resultMap="t_zb_pl_res">
+		select * from LCRiver_xwdh_2.dbo.T_ZB_PL_RES where result_id=#{resultId}
+	</select>
+	
+</mapper>

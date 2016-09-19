@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ITestDao">
+	<resultMap type="testrecord" id="testrecord">
+		<id property="id" column="ID"/>
+		<result property="userid" column="UserID"/>
+	</resultMap>
+	<insert id="insert"  parameterType="Entity.TestRecord" >
+		insert into LCRiver_xwdh_2.dbo.test 
+		values(#{id},#{userid})
+	</insert>
+	
+	<!-- 调用存储过程 -->
+	<select id="StoredProcedure"  statementType="CALLABLE">
+		<![CDATA[{
+				call lcriver_xwdh_2.dbo.T_ZB_BM_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_EA_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_EB_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_EX_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_HW_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_ID_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_IP_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_J2_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_JR_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_JZ_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_KX_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_MX_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_NX_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_PL_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_PR_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_PZ_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_RC_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_RR_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_RS_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_RT_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_RZ_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_S1_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_S3_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_S5_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_S7_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_S9_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_SL_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_TP_Wash_Proc();
+				call lcriver_xwdh_2.dbo.T_ZB_TX_Wash_Proc();
+			}  
+		]]>  
+	</select>
+
+</mapper>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IW_CENodeMetMemDao">
+	<resultMap type="cenodemetmem_current" id="cenodemetmem_current">
+		<result property="nodeID" column="NodeID"/>
+		<result property="itemName" column="ItemName"/>
+		<result property="evaMethod" column="EvaMethod"/>
+		<result property="memGreen" column="MemGreen"/>
+		<result property="memOrange" column="MemOrange"/>
+		<result property="memRed" column="MemRed"/>
+		<result property="date" column="Date"/>
+		<result property="note" column="Note"/>
+	</resultMap>
+	
+	<resultMap type="cenodemetmem_log" id="cenodemetmem_log">
+		<result property="date" column="Date"/>
+		<result property="flag" column="Flag"/>
+	</resultMap>
+	
+	<insert id="addZero" parameterType="map">
+		insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 select m.INSTR_NO,t.${component},'统计模型法' as EvaMethod,0,0,1,m.DT from LCRiver_xwdh_3.dbo.${tableName}_RES1 m , LCRiver_xwdh_1.dbo.MonitorItemType t 
+			where t.table_name = '${tableName}' and m.component = '${component}' and convert(varchar(10),dt,23) = #{dt}
+			and m.mark = 0
+	</insert>
+	
+	<insert id="addSigemaGreen" parameterType="map">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 select m.INSTR_NO,t.${component},'统计模型法' as EvaMethod,1,0,0,m.DT from LCRiver_xwdh_3.dbo.${tableName}_sigama m , LCRiver_xwdh_1.dbo.MonitorItemType t 
+			where t.table_name = '${tableName}' and m.component = '${component}' and convert(varchar(10),dt,23) = #{dt}
+			and m.SV = 1
+	</insert>
+	
+	<insert id="addSigemaOrange" parameterType="map">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 select m.INSTR_NO,t.${component},'统计模型法' as EvaMethod,0,1,0,m.DT from LCRiver_xwdh_3.dbo.${tableName}_sigama m , LCRiver_xwdh_1.dbo.MonitorItemType t 
+			where t.table_name = '${tableName}' and m.component = '${component}' and convert(varchar(10),dt,23) = #{dt}
+			and m.SV = 2
+	</insert>
+	
+	<insert id="addSigemaRed" parameterType="map">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 select m.INSTR_NO,t.${component},'统计模型法' as EvaMethod,0,0,1,m.DT from LCRiver_xwdh_3.dbo.${tableName}_sigama m , LCRiver_xwdh_1.dbo.MonitorItemType t 
+			where t.table_name = '${tableName}' and m.component = '${component}' and convert(varchar(10),dt,23) = #{dt}
+			and m.SV = 3
+	</insert>
+	
+	<insert id="dataTransfer">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_History 
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 select NodeId ,ItemName, EvaMethod, MemGreen, MemOrange, MemRed, Date from LCRiver_xwdh_3.dbo.W_CENodeMetMem_Current
+	</insert>
+	
+	<insert id="addLog" parameterType="String">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Log  ([Date],[Flag]) 
+		 values (#{dt},'0')
+	</insert>
+	
+	<update id="updLog" parameterType="String">
+		 update LCRiver_xwdh_3.dbo.W_CENodeMetMem_Log set [Flag] = '1' 
+		 	where  CONVERT(VARCHAR(10),[Date],23) = #{dt}
+	</update>
+	
+	<insert id="addCurrent">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Current
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 select NodeId ,ItemName, EvaMethod, MemGreen, MemOrange, MemRed, Date from LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+	</insert>
+	
+	<delete id="reSetCurrent">
+		truncate table LCRiver_xwdh_3.dbo.W_CENodeMetMem_Current
+	</delete>
+	
+	<delete id="reSetTemp">
+		truncate table LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+	</delete>
+	
+	<insert id="addlixue12" parameterType="map">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 SELECT instr_no , ItemName,'计算成果比较法' EvaMethod,(CASE when R2 <![CDATA[ < ]]> unionValue then 1 else 0 end ) green , 0 yellow , 
+ 			(case when R2 <![CDATA[ >= ]]> unionValue then 1 else 0 end ) red,dt  from (
+				select mt.*,t.INSTR_NO,t.R2,(CASE when h.[value] <![CDATA[ > ]]> h2.[value] then h.[value] else h2.[value] end) unionValue  from (select m.WL,m.DT,tp.R2 as ItemName from LCRiver_xwdh_3.dbo.T_WATERLEVEL m ,LCRiver_xwdh_1.dbo.MonitorItemType tp 
+					where tp.table_name = #{tableName} and CONVERT(VARCHAR(10),m.dt,23)=#{dt} )mt LEFT JOIN LCRiver_xwdh_2.dbo.${tableName} t on  CONVERT(VARCHAR(10),mt.dt,23) = CONVERT(VARCHAR(10),t.DT,23) left join LCRiver_xwdh_3.dbo.T_Warning_point h
+					on t.instr_no = h.instr_no  and ROUND(mt.wl, 0) = h.WL LEFT JOIN LCRiver_xwdh_3.dbo.T_Warning_point_2 h2 on t.instr_no = h2.instr_no 
+					where t.INSTR_NO in (SELECT DISTINCT instr_no from LCRiver_xwdh_3.dbo.T_Warning_point )) tmp
+	</insert>
+	
+	<insert id="addlixue3" parameterType="map">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 SELECT instr_no , ItemName,'规范允许值法' EvaMethod,(CASE when a <![CDATA[ < ]]> va then 1 else 0 end ) green , 0 yellow , 
+ 			(case when a <![CDATA[ >= ]]> va then 1 else 0 end ) red,dt  from (
+				select h.INSTR_NO ,tp.r1 ItemName, m.DT,t.r1,m.wl ,(t.r1*0.1)/(m.wl-949.39) a , (CASE h.[value] when 1 then 0.60 when 2 then 0.20 END )va
+					from  LCRiver_xwdh_3.dbo.T_Warning_height h LEFT JOIN LCRiver_xwdh_1.dbo.MonitorItemType tp on tp.table_name = h.monitorItem LEFT JOIN LCRiver_xwdh_3.dbo.T_WATERLEVEL m on 1 = 1 LEFT JOIN LCRiver_xwdh_2.dbo.${tableName} t on CONVERT(VARCHAR(10),m.dt,23) = CONVERT(VARCHAR(10),t.DT,23) 
+						and t.instr_no = h.instr_no
+					where CONVERT(VARCHAR(10),m.DT,23) = #{dt}  and h.monitorItem = #{tableName} )tmp
+	</insert>
+	
+	<insert id="addlstzz" parameterType="map">
+		 insert into LCRiver_xwdh_3.dbo.W_CENodeMetMem_Temp 
+		 ([NodeId] ,[ItemName], [EvaMethod], [MemGreen], [MemOrange], [MemRed], [Date])
+		 select m.INSTR_NO , mt.${monitor_type} , '历时特征值法（总量）' methodName , 
+			(case m.gradation when 1 then 0 when 2 then 0 when 3 then 1 when 4 then 1 when 5 then 0 when 6 then 0 else 0 end )green ,
+			(case m.gradation when 1 then 0 when 2 then 1 when 3 then 0 when 4 then 0 when 5 then 1 when 6 then 0 else 0 end )yellow ,
+			(case m.gradation when 1 then 1 when 2 then 0 when 3 then 0 when 4 then 0 when 5 then 0 when 6 then 1 else 0 end )red , dt
+ 		from LCRiver_xwdh_3.dbo.${tableName}_LSTZZ1 m,   LCRiver_xwdh_1.dbo.MonitorItemType mt
+		where m.INSTR_NO = #{instr_no} and  mt.table_name = #{tableName}
+		and Ri = #{monitor_type} and CONVERT(VARCHAR(10),m.DT,23) = #{date}
+	</insert>
+	
+</mapper>

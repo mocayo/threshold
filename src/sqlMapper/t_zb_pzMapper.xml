@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_ZB_PZDao">
+	<resultMap type="t_zb_pz" id="t_zb_pz">
+		<!-- <id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<result property="pressure" column="pressure"/>
+		<result property="tem" column="tem"/>
+		<result property="pressure_pred" column="pressure_pred" />
+		<result property="pressure_rmse" column="pressure_rmse"/>
+		<result property="pressure_error" column="pressure_error"/>
+		<result property="pressure_step" column="pressure_step"/>
+		<result property="pressure_model" column="pressure_model"/>
+		<result property="pressure_err_rate" column="pressure_err_rate"/>
+		<result property="pressure_err_level" column="pressure_err_level"/>
+		<result property="pressure_mid_result" column="pressure_mid_result"/>
+		<result property="note" column="note"/> -->
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<result property="displace_x" column="displace_x"/>
+		<result property="displace_y" column="displace_y"/>
+		<result property="displace_x_step" column="displace_x_step" />
+		<result property="displace_x_model" column="displace_x_model"/>
+		<result property="displace_x_pred" column="displace_x_pred"/>
+		<result property="displace_x_error" column="displace_x_error"/>
+		<result property="displace_x_err_rate" column="displace_x_err_rate"/>
+		<result property="displace_x_err_level" column="displace_x_err_level"/>
+		<result property="displace_y_step" column="displace_y_step" />
+		<result property="displace_y_model" column="displace_y_model"/>
+		<result property="displace_y_pred" column="displace_y_pred"/>
+		<result property="displace_y_error" column="displace_y_error"/>
+		<result property="displace_y_err_rate" column="displace_y_err_rate"/>
+		<result property="displace_y_err_level" column="displace_y_err_level"/>
+		<result property="displace_x_mid_result" column="displace_x_mid_result"/>
+		<result property="displace_y_mid_result" column="displace_y_mid_result"/>
+		<result property="note" column="note"/>
+	</resultMap>
+	<select id="singlePointScreening" parameterType="String" resultMap="t_zb_pz">
+		select distinct instr_no FROM LCRiver_xwdh_1.dbo.T_ZB_PL where instr_no like '%'+ #{iswhere}+'%'
+		<!-- SELECT distinct instr_no FROM LCRiver_xwdh_1.dbo.T_ZB_PL where instr_no like '%A15-PL%' -->
+	</select>
+	
+	<select id="multiPointScreening" parameterType="map" resultMap="t_zb_pz">
+		select * from LCRiver_xwdh_3.dbo.T_ZB_PL where instr_no =#{instr_no} and dt between #{starttime} and #{endtime}
+	</select>
+</mapper>

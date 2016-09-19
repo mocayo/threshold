@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ISIN_PRE_AUTODao">
+	
+    <resultMap type="t_sin_pre_auto" id="t_sin_pre_auto">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<result property="wl" column="wl"/>
+		<result property="realVal" column="realVal"/>
+		<result property="prehandle" column="prehandle"/>
+		<result property="preVal" column="preVal"/>
+		<result property="err_rate" column="err_rate"/>
+		<result property="component" column="component"/>
+		<result property="prediction_id" column="prediction_id" />
+		<result property="modelId" column="modelId" />
+		<result property="mark" column="mark" />
+		<result property="step" column="step" />
+		<result property="isBest" column="isBest" />
+		<result property="status" column="status" />
+		<result property="statics" column="statics"/>
+	</resultMap>
+	
+	<resultMap type="t_sin_pre" id="t_sin_pre">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<result property="wl" column="wl"/>
+		<result property="realVal_r1" column="realVal_r1"/>
+		<result property="realVal_r2" column="realVal_r2"/>
+		<result property="prehandle_r1" column="prehandle_r1"/>
+		<result property="prehandle_r2" column="prehandle_r2"/>
+		<result property="preVal_r1" column="preVal_r1"/>
+		<result property="preVal_r2" column="preVal_r2"/>
+		<result property="err_rate_r1" column="err_rate_r1" />
+		<result property="err_rate_r2" column="err_rate_r2" />
+		<result property="modelId_r1" column="modelId_r1" />
+		<result property="modelId_r2" column="modelId_r2" />
+		<result property="mark_r1" column="mark_r1" />
+		<result property="mark_r2" column="mark_r2" />
+		<result property="isBest_r1" column="isBest_r1"/>
+		<result property="isBest_r2" column="isBest_r2"/>
+	</resultMap>
+	
+	<resultMap type="theautoPreInfo" id="theautoPreInfo">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<result property="wl" column="waterlevel"/>
+		<result property="realVal" column="realVal"/>
+		<result property="preVal" column="preVal"/>
+		<result property="status" column="status" />
+		<result property="model" column="model" />
+		<result property="comp" column="component" />
+		<result property="err_rate" column="err_rate" />
+		<result property="name_r1" column="name_r1" />
+		<result property="name_r2" column="name_r2" />
+		<result property="name_r3" column="name_r3" />
+		<result property="status" column="status"/>
+		<result property="statics" column="statics"/>
+		<!-- <result property="totalRecord" column="totalRecord"/> -->
+	</resultMap>
+	
+	<insert id="insertWorkState" parameterType="map">
+		INSERT INTO [DataCollection].[dbo].[DefWorkProgress] ([batchID], [name], [time], [state], [caijiTime])
+		VALUES(#{batchID}, #{name} , #{currenttime}, #{state} , #{caijiTime})
+	</insert>
+	
+	<select id="queryDataPreState" parameterType="map" resultType="int">
+	    select count(caijiTime) from [DataCollection].[dbo].[DefWorkProgress] 
+	    	where [name] = 'datacalculate' and caijiTime = #{caijiTime}
+	    		and state = #{state}
+	</select>
+	
+	<select id="checkWorkstate" parameterType="map" resultType="int">
+		SELECT
+			count([batchID])
+		FROM
+			[DataCollection].[dbo].[DefWorkProgress]
+		WHERE
+			[caijiTime] BETWEEN #{caijiTime-start} AND #{caijiTime-end}
+		AND [name] = #{name}
+		AND [state] = #{state}
+	</select>
+	
+	<select id="getAllDataCount" parameterType="map" resultType="int">
+			select count(instr_no) FROM
+			[LCRiver_xwdh_3].[dbo].[${tableName}_AUTO] t,LCRiver_xwdh_1.dbo.MonitorItemType a,
+			LCRiver_xwdh_2.dbo.MODEL_TABLE m,
+			LCRiver_xwdh_2.dbo.T_WATER_LEVEL water
+			WHERE 1 = 1 and a.TABLE_NAME =#{tableName} and m.ModelId = t.modelId and isBest = 1
+			and water.dt = t.dt 
+			<choose>
+				<when test="sTime==eTime"> and t.dt between #{sTime} and #{nextTime}</when>
+				<otherwise> and t.dt between #{sTime} and #{eTime}</otherwise>
+			</choose>
+			<if test="instr_no!=''"> and INSTR_NO in (${instr_no})</if>
+			<if test="status=='1'||status=='2'||status=='3'||status=='4'||status=='5'"> and (status_r1 = #{status} || status_r2 = #{status} || status_r3 = #{status})</if>
+			<if test="status=='0'"> and (status_r1 in ('1','2','3','4','5') || status_r2 in ('1','2','3','4','5') || status_r3 in ('1','2','3','4','5'))</if>
+	</select>
+	
+	<select id="getAllDataByPage2" parameterType="map" resultType="Entity.AutoPreInfo2">
+		SELECT
+			t1.INSTR_NO,t1.DT,m.ModelName,t1.component,t1.realVal,t1.preVal,t1.abs_err,t1.err_rate,
+			mi.R1 +'#'+ mi.R2 +'#' + mi.R3 + ';' + mi.UnitR1 +'#'+ mi.UnitR2 +'#' + mi.UnitR3 as Rs
+		FROM
+			LCRiver_xwdh_3.dbo.${table_res} t1,LCRiver_xwdh_2.dbo.MODEL_TABLE m,LCRiver_xwdh_1.dbo.MonitorItemType mi
+		WHERE
+			t1.INSTR_NO = '${point}'
+		AND t1.DT BETWEEN '${start}'
+		AND '${end}'
+		AND t1.isBest = 1
+		AND t1.modelId = m.ModelId
+		AND mi.TABLE_NAME = '${table}'
+		ORDER BY
+			t1.component,t1.DT
+	</select>
+
+	<select id="getAllDataByPage" parameterType="map" resultMap="theautoPreInfo">
+		select * from
+		(select top (#{pagesize} * #{pageindex}) ROW_NUMBER() over (order by t.instr_no) as rownum,
+			t.*,water.wl as waterlevel,
+			a.R1 as name_r1,a.R2 as name_r2,a.R3 as name_r3,m.ModelName as model FROM
+			[LCRiver_xwdh_3].[dbo].[${tableName}_AUTO] t,LCRiver_xwdh_1.dbo.MonitorItemType a,
+			LCRiver_xwdh_2.dbo.MODEL_TABLE m,
+			LCRiver_xwdh_2.dbo.T_WATER_LEVEL water
+			WHERE 1 = 1 and a.TABLE_NAME =#{tableName} and m.ModelId = t.modelId and isBest = 1
+			and water.dt = t.dt 
+			<choose>
+				<when test="sTime==eTime"> and t.dt between #{sTime} and #{nextTime}</when>
+				<otherwise> and t.dt between #{sTime} and #{eTime}</otherwise>
+			</choose>
+			<if test="instr_no!=''"> and INSTR_NO in (${instr_no})</if>
+			<if test="status=='1'||status=='2'||status=='3'||status=='4'||status=='5'"> and (status_r1 = #{status} || status_r2 = #{status} ||
+				status_r3 = #{status})</if>
+			<if test="status=='0'"> and (status_r1 in ('1','2','3','4','5') || status_r2 in
+				('1','2','3','4','5') || status_r3 in ('1','2','3','4','5'))</if>
+			ORDER BY t.dt desc,instr_no
+		) as temp
+		where temp.rownum > (#{pagesize} *(#{pageindex} -1))
+	</select>
+	<select id="getAllData" parameterType="map" resultMap="theautoPreInfo">
+		<!-- SELECT t.* , a.R1 as name_r1,a.R2 as name_r2,a.R3 as name_r3 FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO] t,LCRiver_xwdh_1.dbo.MonitorItemType a
+		WHERE 1 = 1 and a.TABLE_NAME = #{tableName}
+			<choose>
+				<when test="sTime==eTime"> and dt between #{sTime} and #{nextTime}</when>
+				<otherwise> and dt between #{sTime} and #{eTime}</otherwise>
+			</choose>
+			<if test="instr_no!=''"> and INSTR_NO in (${instr_no})</if>
+			<if test="status=='1'||status=='2'||status=='3'||status=='4'||status=='5'"> and (status_r1 = #{status} || status_r2 = #{status} || status_r3 = #{status})</if>
+			<if test="status=='0'"> and (status_r1 in ('1','2','3','4','5') || status_r2 in ('1','2','3','4','5') || status_r3 in ('1','2','3','4','5'))</if>
+			
+		ORDER BY dt desc,instr_no -->
+		SELECT t.* , a.R1 as name_r1,a.R2 as name_r2,a.R3 as name_r3 FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO] t,LCRiver_xwdh_1.dbo.MonitorItemType a
+		WHERE 1 = 1 and a.TABLE_NAME = #{tableName}
+			<choose>
+				<when test="sTime==eTime"> and dt between #{sTime} and #{nextTime}</when>
+				<otherwise> and dt between #{sTime} and #{eTime}</otherwise>
+			</choose>
+			<if test="instr_no!=''"> and INSTR_NO in (${instr_no})</if>
+			<if test="status=='1'||status=='2'||status=='3'||status=='4'||status=='5'"> and (status_r1 = #{status} || status_r2 = #{status} || status_r3 = #{status})</if>
+			<if test="status=='0'"> and (status_r1 in ('1','2','3','4','5') || status_r2 in ('1','2','3','4','5') || status_r3 in ('1','2','3','4','5'))</if>
+		ORDER BY dt desc,instr_no
+	</select>
+	
+	<select id="getDataByIdTm" parameterType="map" resultMap="t_sin_pre_auto">
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		where instr_no = #{instr_no} and CONVERT(varchar(10),DT,120) = #{dt}
+	</select>
+	
+	<select id="getDataByIdTmR1" parameterType="map" resultMap="t_sin_pre_auto">
+<!-- 		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO] -->
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_RES1]
+		where instr_no = #{instr_no} and CONVERT(varchar(10),DT,120) = #{dt}
+		and component = 'r1' and modelId = #{modelId}
+	</select>
+	
+	<select id="getDataByIdTmR2" parameterType="map" resultMap="t_sin_pre_auto">
+<!-- 		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO] -->
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_RES1]
+		where instr_no = #{instr_no} and CONVERT(varchar(10),DT,120) = #{dt}
+		and component = 'r2' and modelId = #{modelId}
+	</select>
+	
+	<select id="getDataByIdTmR3" parameterType="map" resultMap="t_sin_pre_auto">
+<!-- 		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO] -->
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_RES1]
+		where instr_no = #{instr_no} and CONVERT(varchar(10),DT,120) = #{dt}
+		and component = 'r3' and modelId = #{modelId}
+	</select>
+	
+	<!-- <select id="getDataToExcel" parameterType="map" resultMap="t_sin_pre_auto">
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		where instr_no = #{instr_no} and DT between #{sTime} and #{eTime}
+	</select> -->
+	
+	<select id="getDataToExcel" parameterType="map" resultMap="t_sin_pre_auto">
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		where instr_no = #{instr_no} and DT between #{sTime} and #{eTime}
+		and prediction_id = '0'
+	</select>
+	
+	<insert id="add_res" parameterType="map">
+		 INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}_RES1](
+			[INSTR_NO],[DT],[component],[prediction_id],[modelId],[WL],[realVal],[prehandle],[mark],[step],[preVal],[err_rate],[isBest],[status],[STATICS])
+		VALUES(#{instr_no},#{dt},#{component},'0',#{modelId},#{wl},#{realVal},#{prehandle},#{mark},#{step},#{preVal},#{err_rate},'',#{status},#{staticsData}) 
+<!--		INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO](
+			[INSTR_NO],[DT],[component],[modelId],[WL],[realVal],[prehandle],[mark],[step],[preVal],[err_rate],[isBest],[status],[STATICS])
+		VALUES(#{instr_no},#{dt},#{component},#{modelId},#{wl},#{realVal},#{prehandle},#{mark},#{step},#{preVal},#{err_rate},'',#{status},#{staticsData})-->
+	</insert>
+			
+			
+	<insert id="add_res_r1" parameterType="map">
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO](
+			[INSTR_NO],[DT],[WL],[realVal_r1],[preVal_r1],[rmse_r1],[status_r1],[STATICS])
+		VALUES(#{instr_no},#{dt},#{wl},#{realVal_r1},#{preVal_r1},#{rmse_r1},#{status_r1},#{STATICS})
+	</insert>
+	<insert id="add_res_r2" parameterType="map">
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO](
+			[INSTR_NO],[DT],[WL],[realVal_r2],[preVal_r2],[rmse_r2],[status_r2],[STATICS])
+		VALUES(#{instr_no},#{dt},#{wl},#{realVal_r2},#{preVal_r2},#{rmse_r2},#{status_r2},#{STATICS})
+	</insert>
+	<insert id="add_res_r3" parameterType="map">
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO](
+			[INSTR_NO],[DT],[WL],[realVal_r3],[preVal_r3],[rmse_r3],[status_r3],[STATICS])
+		VALUES(#{instr_no},#{dt},#{wl},#{realVal_r3},#{preVal_r3},#{rmse_r3},#{status_r3},#{STATICS})
+	</insert>
+	
+	<!-- 添加字段 -->
+	<update id="updPre_r1" parameterType="map">
+		update [LCRiver_xwdh_3].[dbo].[${tableName}_RES1]
+		<!-- set  preVal = #{preVal},err_rate = #{err_rate} -->
+		set  acheck = #{preVal}
+		where instr_no = #{instr_no} and CONVERT(varchar(10),DT,120) = #{dt}
+		and component = 'r1' and modelId = #{modelId}
+	</update>
+	<update id="updPre_r2" parameterType="map">
+		update [LCRiver_xwdh_3].[dbo].[${tableName}_RES1]
+		<!-- set  preVal = #{preVal},err_rate = #{err_rate} -->
+		set  acheck = #{preVal}
+		where instr_no = #{instr_no} and CONVERT(varchar(10),DT,120) = #{dt}
+		and component = 'r2' and modelId = #{modelId}
+	</update>
+	
+	<update id="update_res_r1" parameterType="map">
+		update [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		set realVal_r1 = #{realVal_r1}, preVal_r1 = #{preVal_r1},rmse_r1 = #{rmse_r1} ,status_r1 = #{status_r1}
+		where instr_no = #{instr_no} and dt = #{dt}
+	</update>
+	<update id="update_res_r2" parameterType="map">
+		update [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		set realVal_r2 = #{realVal_r2}, preVal_r2 = #{preVal_r2},rmse_r2 = #{rmse_r2} ,status_r2 = #{status_r2}
+		where instr_no = #{instr_no} and dt = #{dt}
+	</update>
+	<update id="update_res_r3" parameterType="map">
+		update [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		set realVal_r3 = #{realVal_r3}, preVal_r3 = #{preVal_r3},rmse_r3 = #{rmse_r3} ,status_r3 = #{status_r3}
+		where instr_no = #{instr_no} and dt = #{dt}
+	</update>
+	
+	<delete id="clearData"  parameterType="map">
+		delete from [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+			where dt between '2012-05-31' and '2013-05-31'
+	</delete>
+	
+	<select id="getDrawChartData" parameterType="map" resultType="t_sin_pre_auto">
+		select INSTR_NO,DT,component,WL,realVal,preVal, m.ModelName as STATICS 
+		from [LCRiver_xwdh_3].[dbo].[${tableName}] t,[LCRiver_xwdh_2].[dbo].[MODEL_TABLE] m
+		where INSTR_NO = '${instr_no}' 
+		and t.modelId = m.ModelId
+		and dt between '${stime}' and '${etime}'
+		and component = '${comp}'
+		and prediction_id = '${preId}'
+		order by t.modelid
+	</select>
+	
+	<select id="get2Pre" parameterType="map" resultType="t_sin_pre">
+	select t1.instr_no,t1.dt,prehandle_r1,preVal_r1,prehandle_r2,preVal_r2 from (
+
+	select m.instr_no,m.dt,m.prehandle as prehandle_r1,
+	case when m.mark = '1' then t.preVal
+	else null end as preVal_r1 from LCRiver_xwdh_2.dbo.${tableName}_AUTO m LEFT JOIN
+	(select * from LCRiver_xwdh_3.dbo.T_ZB_PL_RES1 WHERE modelId = '7')t
+	on m.instr_no = t.instr_no and CONVERT(VARCHAR(10),m.dt,23 ) = CONVERT(VARCHAR(10),t.dt,23 ) 
+	and m.component = t.component
+	where CONVERT(VARCHAR(10),m.dt,23 ) = #{dt}
+	and m.instr_no = #{instr_no}
+	and m.component = 'r1'
+	) t1,
+
+	(select m.prehandle as prehandle_r2,
+	case when m.mark = '1' then t.preVal
+	else null end as preVal_r2 from LCRiver_xwdh_2.dbo.${tableName}_AUTO m LEFT JOIN
+	(select * from LCRiver_xwdh_3.dbo.T_ZB_PL_RES1 WHERE modelId = '7')t
+	on m.instr_no = t.instr_no and CONVERT(VARCHAR(10),m.dt,23 ) = CONVERT(VARCHAR(10),t.dt,23 ) 
+	and m.component = t.component
+	where CONVERT(VARCHAR(10),m.dt,23 ) = #{dt}
+	and m.instr_no = #{instr_no}
+	and m.component = 'r2'
+	) t2
+	</select>
+
+	<select id="getR1" parameterType="map" resultType="t_sin_pre_auto">
+	    select * from LCRiver_xwdh_3.dbo.${tableName}_RES1 m
+	    where CONVERT(VARCHAR(10),m.dt,23 ) = #{dt}
+	    and m.instr_no = #{instr_no}
+		and m.component = 'r1'
+		and m.modelId = '7'
+	</select>
+	
+	<select id="getR2" parameterType="map" resultType="t_sin_pre_auto">
+	    select * from LCRiver_xwdh_3.dbo.${tableName}_RES1 m
+	    where CONVERT(VARCHAR(10),m.dt,23 ) = #{dt}
+	    and m.instr_no = #{instr_no}
+		and m.component = 'r2'
+		and m.modelId = '7'
+	</select>
+	
+	<select id="getTestAutoInfo" resultType="Entity.AutoPreInfo2">
+		SELECT
+			t1.INSTR_NO,
+			t1.DT,
+			m.ModelName,
+			t1.component,
+			t1.realVal,
+			t1.preVal,
+			t1.isBest as abs_err,
+			t1.err_rate,
+			t1.isBest,
+			mi.R1 + '#' + mi.R2 + '#' + mi.R3 + ';' + mi.UnitR1 + '#' + mi.UnitR2 + '#' + mi.UnitR3 AS Rs
+		FROM
+			LCRiver_xwdh_3.dbo.T_ZB_PL_RES1 t1,<!-- LCRiver_xwdh_3.dbo.T_ZB_S9_RES1 t1, -->
+			LCRiver_xwdh_2.dbo.MODEL_TABLE m,
+			LCRiver_xwdh_1.dbo.MonitorItemType mi
+		WHERE
+			t1.INSTR_NO = 'C4-A22-PL-01'
+			<!-- t1.INSTR_NO = 'C4-A22-S9-03-2' -->
+		AND t1.DT BETWEEN '2012-06-01'
+		AND '2012-07-31'
+		AND t1.modelId = m.ModelId
+		AND mi.TABLE_NAME = 'T_ZB_PL'<!-- AND mi.TABLE_NAME = 'T_ZB_S9' -->
+		AND t1.component = 'r2'
+		ORDER BY
+			m.ModelName,
+			t1.component,
+			t1.DT
+	</select>
+	
+</mapper>
+
+
+<!-- <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ISIN_PRE_AUTODao">
+	<resultMap type="t_sin_pre_auto" id="t_sin_pre_auto">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<result property="wl" column="wl"/>
+		<result property="realVal_r1" column="realVal_r1"/>
+		<result property="realVal_r2" column="realVal_r2"/>
+		<result property="realVal_r3" column="realVal_r3"/>
+		<result property="preVal_r1" column="preVal_r1"/>
+		<result property="preVal_r2" column="preVal_r2"/>
+		<result property="preVal_r3" column="preVal_r3"/>
+		<result property="status_r1" column="status_r1" />
+		<result property="status_r2" column="status_r2" />
+		<result property="status_r3" column="status_r3" />
+		<result property="name_r1" column="name_r1" />
+		<result property="name_r2" column="name_r2" />
+		<result property="name_r3" column="name_r3" />
+		<result property="statics" column="statics"/>
+		
+	</resultMap>
+	
+	
+	<select id="getAllData" parameterType="map" resultMap="t_sin_pre_auto">
+	第一次测试：更改 LCRiver_xwdh_3 为 LCRiver_xwdh_2
+	SELECT t.* , a.R1 as name_r1,a.R2 as name_r2,a.R3 as name_r3 FROM [LCRiver_xwdh_2].[dbo].[${tableName}_AUTO] t,LCRiver_xwdh_1.dbo.MonitorItemType a
+		WHERE 1 = 1 and a.TABLE_NAME = #{tableName}
+			<choose>
+				<when test="sTime==eTime"> and dt between #{sTime} and #{nextTime}</when>
+				<otherwise> and dt between #{sTime} and #{eTime}</otherwise>
+			</choose>
+			<if test="instr_no!=''"> and INSTR_NO in ( ${instr_no} )</if>
+			<if test="instr_no!=''"> and INSTR_NO = #{instr_no} </if>
+			<if test="status=='1'||status=='2'||status=='3'||status=='4'||status=='5'"> and (status_r1 = #{status} || status_r2 = #{status} || status_r3 = #{status})</if>
+			<if test="status=='0'"> and (status_r1 in ('1','2','3','4','5') || status_r2 in ('1','2','3','4','5') || status_r3 in ('1','2','3','4','5'))</if>
+			
+		ORDER BY dt desc,instr_no
+	
+	</select>
+	
+	<select id="getDataByIdTm" parameterType="map" resultMap="t_sin_pre_auto">
+		SELECT * FROM [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		where instr_no = #{instr_no} and CONVERT(varchar(10),DT,120) = #{dt}
+	</select>
+	
+			
+	<insert id="add_res_r1" parameterType="map">
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO](
+			[INSTR_NO],[DT],[WL],[realVal_r1],[preVal_r1],[rmse_r1],[status_r1],[STATICS])
+		VALUES(#{instr_no},#{dt},#{wl},#{realVal_r1},#{preVal_r1},#{rmse_r1},#{status_r1},#{STATICS})
+	</insert>
+	<insert id="add_res_r2" parameterType="map">
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO](
+			[INSTR_NO],[DT],[WL],[realVal_r2],[preVal_r2],[rmse_r2],[status_r2],[STATICS])
+		VALUES(#{instr_no},#{dt},#{wl},#{realVal_r2},#{preVal_r2},#{rmse_r2},#{status_r2},#{STATICS})
+	</insert>
+	<insert id="add_res_r3" parameterType="map">
+		INSERT INTO [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO](
+			[INSTR_NO],[DT],[WL],[realVal_r3],[preVal_r3],[rmse_r3],[status_r3],[STATICS])
+		VALUES(#{instr_no},#{dt},#{wl},#{realVal_r3},#{preVal_r3},#{rmse_r3},#{status_r3},#{STATICS})
+	</insert>
+	
+	<update id="update_res_r1" parameterType="map">
+		update [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		set realVal_r1 = #{realVal_r1}, preVal_r1 = #{preVal_r1},rmse_r1 = #{rmse_r1} ,status_r1 = #{status_r1}
+		where instr_no = #{instr_no} and dt = #{dt}
+	</update>
+	<update id="update_res_r2" parameterType="map">
+		update [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		set realVal_r2 = #{realVal_r2}, preVal_r2 = #{preVal_r2},rmse_r2 = #{rmse_r2} ,status_r2 = #{status_r2}
+		where instr_no = #{instr_no} and dt = #{dt}
+	</update>
+	<update id="update_res_r3" parameterType="map">
+		update [LCRiver_xwdh_3].[dbo].[${tableName}_AUTO]
+		set realVal_r3 = #{realVal_r3}, preVal_r3 = #{preVal_r3},rmse_r3 = #{rmse_r3} ,status_r3 = #{status_r3}
+		where instr_no = #{instr_no} and dt = #{dt}
+	</update>
+	
+</mapper>
+ -->

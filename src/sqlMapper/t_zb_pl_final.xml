@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_ZB_PL_FINALDao">
+	<resultMap type="t_zb_pl_final" id="t_zb_pl_final">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<id property="result_id" column="result_id"/>
+		<result property="handle_time" column="handle_time"/>
+		<result property="displace_x" column="displace_x"/>
+		<result property="displace_y" column="displace_y"/>
+		<result property="handle_x_result" column="handle_x_result"/>
+		<result property="handle_y_result" column="handle_y_result"/>
+	</resultMap>
+	<select id="findResult" parameterType="map" resultMap="t_zb_pl_final">
+		select * from LCRiver_xwdh_2.dbo.T_ZB_PL_FINAL  where instr_no=#{instr_no} and dt=#{dt}
+	</select>
+	<update id="updateResult" parameterType="map">
+		update LCRiver_xwdh_2.dbo.T_ZB_PL_FINAL set 
+		result_id=#{result_id},handle_time=#{handle_time},
+		handle_x_result=#{handle_x_result},handle_y_result=#{handle_y_result}
+		where instr_no=#{instr_no} and dt=#{dt}
+	</update>
+	<insert id="insertResult" parameterType="map">
+		insert into LCRiver_xwdh_2.dbo.T_ZB_PL_FINAL 
+		values (#{instr_no},#{dt},#{result_id},#{handle_time},#{displace_x},#{displace_y}
+				,#{handle_x_result},#{handle_y_result})
+	</insert>
+	
+</mapper>

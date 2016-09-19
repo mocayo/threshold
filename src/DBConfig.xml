@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dbconfig>
+	<!--com.microsoft.sqlserver.jdbc.SQLServerDriver jdbc:sqlserver://121.248.200.22:1433;databaseName=LCRiver_xwdh_4;user=sa;password=amon1991 -->
+	<dbserver id="nrRemote" name="南瑞中控楼数据库">
+		<list id="2015-04-01 00:00:00">
+			<used>1</used>  <!-- 1表示正在使用，0表示未使用 -->
+			<driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+			<url>jdbc:sqlserver://10.65.20.120:1433;databaseName=dmonlinexw</url>
+			<username>sa</username>
+			<password>narixw</password>
+		</list>
+	</dbserver>
+	<dbserver id="nrLocal" name="南瑞本地同步数据库">
+		<list id="2015-04-01 00:00:00">
+			<used>1</used>  <!-- 1表示正在使用，0表示未使用 -->
+			<driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+			<url>jdbc:sqlserver://127.0.0.1:1433;databaseName=dmonlinexw</url>
+			<username>sa</username>
+			<password>amon@1991</password>
+		</list>
+	</dbserver>
+	<dbserver id="hhu"  name="阈值分析数据库">
+		<list id="2015-04-01 00:00:00" >
+			<used>1</used>  <!-- 1表示正在使用，0表示未使用 -->
+			<driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+			<url>jdbc:sqlserver://121.248.200.22:1433;databaseName=LCRiver_xwdh_1</url>
+			<username>sa</username>
+			<password>amon@1991</password>
+		</list>
+	</dbserver>
+	<dbserver id="kmy"   name="分级预警数据库">
+		<list id="2015-04-01 00:00:00">
+			<used>1</used>  <!-- 1表示正在使用，0表示未使用 -->
+			<driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+			<url>jdbc:sqlserver://121.248.200.22:1433;databaseName=LCRiver_xwdh_1</url>
+			<username>sa</username>
+			<password>amon1991</password>
+		</list>
+	</dbserver>
+	<dbserver id="xunjian"  name="巡检数据库">
+		<list id="2015-04-01 00:00:00">
+			<used>1</used>  <!-- 1表示正在使用，0表示未使用 -->
+			<driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+			<url>jdbc:sqlserver://121.248.200.22:1433;databaseName=LCRiver_xwdh_1</url>
+			<username>sa</username>
+			<password>amon1991</password>
+		</list>
+	</dbserver>
+</dbconfig>

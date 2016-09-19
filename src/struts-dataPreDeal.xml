@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" "http://struts.apache.org/dtds/struts-2.1.dtd">
+
+<struts>
+
+	<!-- 数据预处理 -->
+	<package name="data_pre_deal" extends="struts-default">
+	
+		<!--   -->
+		
+	</package>
+	
+	<package name="data_pre_deal_json" extends="json-default">
+	
+		<action name="dataPreDeal" class="Action.DataPreDealAction">
+			<result name="success" type="json"></result>
+		</action>
+		<action name="dataPredict" class="Action.PredictAction">
+			<result name="success" type="json"></result>
+		</action>
+		<action name="dataPredictAuto" class="util.DataPredictAutomatic">
+			<result name="success" type="json"></result>
+		</action>
+		
+		<action name="commonPreHandle" class="Action.CommonPreHandleAction">
+			<result name="success" type="json"></result>
+		</action>
+		<!-- commonGetPreInfoById 根据批次ID查询批次的基本信息 -->
+		<action name="commonGetPreInfoByBatchId" class="Action.CommonPreHandleAction" 
+				method="commonGetPreInfoByBatchId">
+			<result name="success" type="json"></result>
+		</action>
+		
+		
+	</package>
+</struts>

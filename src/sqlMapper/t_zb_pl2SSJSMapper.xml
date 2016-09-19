@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_ZB_PL2SSJSDao">
+	<resultMap type="t_zb_pl2" id="t_zb_pl2">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<result property="displace_x" column="displace_x"/>
+		<result property="displace_y" column="displace_y"/>
+		<result property="handle_time" column="handle_time" />
+		<result property="handle_result" column="handle_result"/>
+		<result property="people_handle" column="people_handle"/>
+	</resultMap>
+	
+	<select id="getAllT_ZB_PL2SSJS" resultMap="t_zb_pl2" parameterType="map">
+		select * from LCRiver_xwdh_2.dbo.t_zb_pl where rtrim(instr_no) = #{instr_no}
+		<if test="starttime != null and endtime != null">
+			and dt between #{starttime} and #{endtime}
+		</if>
+		order by dt desc
+	</select>
+	
+	<select id="getAllInstr_no" resultType="String">
+		select distinct rtrim(instr_no) from LCRiver_xwdh_2.dbo.t_zb_pl where 1 = 1;
+	</select>
+</mapper>

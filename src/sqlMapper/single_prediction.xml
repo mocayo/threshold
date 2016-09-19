@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.ISINGLE_PREDICTIONDao">
+	<resultMap type="single_prediction" id="single_prediction">
+		<id property="id" column="id"/>
+		<result property="dt" column="dt"/>
+		<result property="det_instr" column="det_instr"/>
+		<result property="dam_no" column="dam_no"/>
+		<result property="obser_no" column="obser_no"/>
+		<result property="pre_component" column="pre_component"/>
+		<result property="startTime" column="startTime"/>
+		<result property="endTime" column="endTime"/>
+		<result property="oneData" column="oneData"/>
+		<result property="twoData" column="twoData"/>
+		<result property="threeData" column="threeData"/>
+		<result property="rmsePow" column="rmsePow"/>
+		<result property="date1Str" column="date1Str"/>
+		<result property="date2Str" column="date2Str"/>
+		<result property="date3Str" column="date3Str"/>
+	</resultMap>
+	
+	<select id="getSingle_predictions" parameterType="map" resultMap="single_prediction">
+		SELECT  t.id,t.dt,t.dam_no, case
+		  when  t.pre_component like '%r1%' and t.pre_component like '%r2%' and t.pre_component like '%r3%'
+			then m.R1 + ',' + m.R2 + ',' + m.R3
+		  when t.pre_component like '%r1%' and t.pre_component like '%r2%'
+			then m.R1 + ',' + m.R2
+		  when  t.pre_component like '%r1%' and t.pre_component like '%r3%'
+			then m.R1 + ',' + m.R3
+		  when  t.pre_component like '%r2%' and t.pre_component like '%r3%'
+			then m.R2 + ',' + m.R3	
+		  when t.pre_component like '%r1%'
+		    then m.R1 
+		  when t.pre_component like '%r2%'
+		    then m.R2 
+		  when t.pre_component like '%r3%'
+		    then m.R3 
+		end as pre_component,t.det_instr,t.obser_no,t.startTime,t.endTime,t.staticsData,t.date1Str,t.date2Str,t.date2Str,t.date3Str
+			FROM LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION t left join  LCRiver_xwdh_1.dbo.MonitorItemType m on t.det_instr = m.TABLE_NAME
+<!-- 		SELECT TOP ${len} * -->
+<!-- 		FROM LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION -->
+<!-- 		WHERE dt > -->
+<!--           ( -->
+<!--           SELECT ISNULL(MAX(dt),0)  -->
+<!--           FROM  -->
+<!--                 ( -->
+<!--                 SELECT TOP ${start} dt FROM LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION ORDER BY dt -->
+<!--                 ) A -->
+<!--           ) -->
+		ORDER BY dt desc
+	</select>
+	
+	<select id="getPreById" parameterType="String" resultMap="single_prediction">
+		SELECT  * FROM LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION where id = #{id}
+	</select>
+	
+	<select id="getAllforPrint" resultMap="single_prediction">
+		SELECT  * FROM LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION where 1 = 1
+	</select>
+	
+	<select id="countPre" resultType="java.lang.Integer">
+		select count(*) as NUM from LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION
+		</select>
+	
+<!-- 	<select id="selTableName" parameterType="String" resultType="String"> -->
+<!-- 		select det_instr from LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION where id = #{id} -->
+<!-- 	</select> -->
+	
+	<delete id="del_singlepre" parameterType="String">
+		delete from LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION where id = #{id}
+	</delete>
+	
+	<delete id="del_result" parameterType="map">
+		delete from LCRiver_xwdh_3.dbo.${tableName} where prediction_id = #{id}
+	</delete>
+	
+	<insert id="add_singlepre" parameterType="map">
+		insert into LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION 
+		([id],[dt],[det_instr],[dam_no],[obser_no],[pre_component],[startTime],[endTime],[staticsData],[date1Str],[date2Str],[date3Str])
+		values (#{id},#{dt},#{det_instr},#{dam_no},#{obser_no},#{pre_component},#{startTime},#{endTime},#{staticsData},'${date1Str}','${date2Str}','${date3Str}')
+<!-- 		insert into LCRiver_xwdh_3.dbo.T_SINGLE_PREDICTION 
+		([id],[dt],[det_instr],[dam_no],[obser_no],[pre_component],[startTime],[endTime],[staticsData],[date1Str],[date2Str],[date3Str])
+		values (#{id},#{dt},(select c.[table] from [LCRiver_xwdh_1].[dbo].[DefTableType] c where c.type = #{det_type}),#{dam_no},#{obser_no},#{pre_component},#{startTime},#{endTime},#{staticsData},'${date1Str}','${date2Str}','${date3Str}') -->
+	</insert>
+	
+</mapper>

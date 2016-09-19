@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_OUTLIERDao">
+	<resultMap type="t_outlier" id="t_outlier">
+		<id property="instr_no" column="instr_no"/>
+		<result property="dt" column="dt"/>
+		<result property="displace_x" column="displace_x"/>
+		<result property="displace_y" column="displace_y"/>
+	</resultMap>
+	<select id="dataOutlier" parameterType="map" resultMap="t_outlier">
+		SELECT TOP ${len} *
+		FROM LCRiver_xwdh_2.dbo.T_ZB_PL_OUTLIER
+		WHERE instr_no >
+          (
+          SELECT ISNULL(MAX(instr_no),0) 
+          FROM 
+                (
+                SELECT TOP ${start} instr_no FROM LCRiver_xwdh_2.dbo.T_ZB_PL_OUTLIER ORDER BY instr_no
+                ) A
+          )
+		ORDER BY instr_no
+		 
+	</select>
+	<select id="countOutlier" resultType="java.lang.Integer">
+		select count(*) as NUM from LCRiver_xwdh_2.dbo.T_ZB_PL_OUTLIER
+	</select>
+</mapper>

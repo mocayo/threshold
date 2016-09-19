@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IConfHisValDao">
+	<resultMap type="confHisVal" id="confHisVal">
+		<result property="step" column="step"/>
+		<result property="nextDate" column="nextDate"/>
+	</resultMap>
+	
+	<select id="getConf" resultType="confHisVal">
+		select top 1 step,nextDate from LCRiver_xwdh_3.dbo.T_LSSET
+	</select>
+	
+	<update id="updateConf" parameterType="map">
+		update LCRiver_xwdh_3.dbo.T_LSSET set step=#{step},nextDate=#{nextDate}
+		where component in ('r1','r2','r3')
+	</update>
+	
+</mapper>

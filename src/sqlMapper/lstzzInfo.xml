@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.LSTZZInfoDao">
+	<resultMap type="thelstzzInfo" id="thelstzzInfo">
+		<result property="instr_no" column="INSTR_NO"/>
+		<result property="wl" column="WL"/>
+		<result property="maxV" column="maxV"/>
+		<result property="minV" column="minV"/>
+		<result property="avgV" column="avgV"/>
+		<result property="maxAV" column="maxAv"/>
+		<result property="minAV" column="minAv"/>
+		<result property="sDate" column="sDate"/>
+		<result property="eDate" column="eDate"/>
+	</resultMap>
+	
+	<select id="getLSTZZInfo" parameterType="map" resultType="thelstzzInfo">
+		select * from 
+		(select top (#{pagesize} * #{pageindex}) ROW_NUMBER() over (order by Instr_no ) as rownum , *
+	  	from LCRiver_xwdh_3.dbo.T_MID_LSTZZ
+	  	where WL='1'
+	 	) as temp
+		where temp.rownum > (#{pagesize} *(#{pageindex} -1))
+		order by temp.Instr_no
+	</select>
+	
+	<select id="getLSTZZInfoCount" parameterType="map" resultType="int">
+		select count(Instr_no) from LCRiver_xwdh_3.dbo.T_MID_LSTZZ
+	  	where WL='1'
+	</select>
+	
+	<select id="getLSTZZ_RES" parameterType="map" resultType="Entity.T_LSTZZ_RES">
+		SELECT
+			*,mt.R1 + '#' + mt.R2 + '#' + mt.R3 + 'unit' + mt.UnitR1 + '#' + mt.UnitR2 + '#' + mt.UnitR3 as name_comp
+		FROM
+			LCRiver_xwdh_2.dbo.T_LSTZZ_RES,LCRiver_xwdh_1.dbo.MonitorItemType mt
+		WHERE
+			instr_no = #{instr_no}
+		AND wl_class = #{wl_class}
+		AND mt.TABLE_NAME = #{table_name}
+		ORDER BY
+			component,isRising,[year]
+	</select>
+	
+	<select id="getLSTZZ_RES_5" parameterType="map" resultType="Entity.T_LSTZZ_RES_5">
+		SELECT
+			*,mt.R1 + '#' + mt.R2 + '#' + mt.R3 + 'unit' + mt.UnitR1 + '#' + mt.UnitR2 + '#' + mt.UnitR3 as name_comp
+		FROM
+			LCRiver_xwdh_2.dbo.T_LSTZZ_RES_5,LCRiver_xwdh_1.dbo.MonitorItemType mt
+		WHERE
+			pno = #{instr_no}
+		AND waterlevel = #{wl}
+		AND mt.TABLE_NAME = #{table_name}	
+	</select>
+	
+	<select id="getWaterLevel" parameterType="java.lang.String" resultType="double">
+		SELECT UPLEVEL from xwplat.dbo.B_HUBENV
+		WHERE UPLEVELDT = #{dt}
+	</select>
+	
+</mapper>

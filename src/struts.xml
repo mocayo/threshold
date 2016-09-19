@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 2.1//EN" " http://struts.apache.org/dtds/struts-2.1.dtd">
+<struts>
+	<!-- 基本的配置内容 -->
+	<!-- package元素的name属性指的是包名，extends属性表示继承struts-default这个包 -->
+	<package name="struts2" extends="struts-default">
+
+		<action name="Test" class="Action.TestAction"></action>
+		<!-- 通过坝段和表名获取所有的点 -->
+		<action name="GetPointByDamAndTableName" class="Action.GetPointByDamAndTableName"></action>
+		<action name="MultiPointScreening" class="Action.MultiPointScreening"></action>
+		<action name="dataPreprocessing" class="Action.DataPreprocessing"
+			method="dataPreprocessList">
+			<result name="dataPreprocess">SSAQFX/ssaqfx01.jsp</result>
+		</action>
+		<action name="SinForcast" class="Action.SinForcast"></action>
+		<action name="sfResult" class="Action.SinForcastResult"></action>
+		<action name="compSelect" class="Action.SinForcastResult"
+			method="compSelect"></action>
+		<action name="exportPiciInDetail" class="Action.SinForcastResult"
+			method="exportPiciInDetail"></action>
+		<action name="sinPreAuto" class="Action.SinForcastResult"
+			method="sinPreAuto"></action>
+		<action name="detailedData" class="Action.SinForcastResult"
+			method="detailedData"></action>
+		<action name="autoPrint" class="Action.SinForcastResult"
+			method="autoPrint"></action>
+		<action name="DataProcess" class="Action.DataProcess"></action>
+		<action name="ParameterQuery" class="Action.ParameterQuery"></action>
+		<action name="ModelQuery" class="Action.ModelQuery"></action>
+		<action name="GetModel" class="Action.GetModel"></action>
+		<action name="GetTableType" class="Action.GetTableType"></action>
+		<action name="GetMonitorItemType" class="Action.GetMonitorItemType"></action>
+		<action name="GetInsSort" class="Action.GetInsSort"></action>
+		<action name="ModifyModelPara" class="Action.ModifyModelPara"></action>
+		<action name="GetMonitorItems" class="Action.GetMonitorItems"></action>
+		<action name="ModifyModelState" class="Action.ModifyModelState"></action>
+		<action name="GetForeHandlePoint" class="Action.GetForeHandlePoint"></action>
+		<action name="ForecastHandle" class="Action.ForecastHandle"></action>
+		<action name="ModifyForeHandleResult" class="Action.ModifyForeHandleResult"></action>
+		<action name="QueryForeHandleModifyResult" class="Action.QueryForeHandleModifyResult"></action>
+
+		<action name="getAllT_ZB_PL2SSJS" class="Action.GetAllT_ZB_PL2SSJS"></action>
+
+		<action name="lsCharacteristic" class="util.LsCharacteristic"></action>
+		<action name="dtLsCharacteristic" class="util.DtLsCharacteristic"></action>
+
+		<!-- getLatestTime 获取预处理时间最新 -->
+		<action name="getLatestTime" class="Action.DataPreDealAction"
+			method="getLatestTime"></action>
+
+		<!-- 测试数据链接 -->
+		<action name="testConfig" class="Action.DataBaseSource" method="testConfig"></action>
+		<!-- 获取数据源 -->
+		<action name="getDBConfig" class="Action.DataBaseSource"
+			method="getDBConfig"></action>
+		<!-- 添加数据源地址 -->
+		<action name="addDBSourceIP" class="Action.DataBaseSource"
+			method="addDBSourceIP"></action>
+		<!-- 删除数据源 -->
+		<action name="deleteDBSource" class="Action.DataBaseSource"
+			method="deleteDBSource"></action>
+		<!-- 删除数据源IP -->
+		<action name="deleteDBSourceIP" class="Action.DataBaseSource"
+			method="deleteDBSourceIP"></action>
+		<!-- 修改数据源 ModifyDBConfig -->
+		<action name="modifyDBConfig" class="Action.DataBaseSource"
+			method="modifyDBConfig"></action>
+		<!-- 使用数据源 useDBSource -->
+		<action name="useDBSource" class="Action.DataBaseSource"
+			method="useDBSource"></action>
+		<!-- 重启项目服务器 -->
+		<action name="Reload_project" class="Action.DataBaseSource"
+			method="Reload_project"></action>
+		<!-- 增加数据源 -->
+		<action name="addDBSource" class="Action.DataBaseSource"
+			method="addDBSource"></action>
+
+		<action name="getLogDate" class="Action.LogAction" method="getLogDate"></action>
+		<action name="getLogByDate" class="Action.LogAction" method="getLogByDate"></action>
+		<!-- 通过开始结束时间获取日志 -->
+		<action name="getLogByTime" class="Action.LogAction" method="getLogByTime"></action>
+
+		<!-- 数据预处理 -->
+		<action name="commonPreHandleAction" class="Action.CommonPreHandleAction"></action>
+		<!-- getAllPreHandleBatch 查询所有的预处理结果 -->
+		<action name="getAllPreHandleBatch" class="Action.PreProcessResult"
+			method="getAllPreHandleBatch"></action>
+		<!-- 根据预处理结果类型查询预处理结果 -->
+		<action name="getPreHandleResByType" class="Action.PreProcessResult"
+			method="getPreHandleResByType"></action>
+		<!-- getInfoByResultId 根据批次ID查询批次的基本信息 -->
+		<action name="getPreHandleInfoByBatchId" class="Action.PreProcessResult"
+			method="getPreHandleInfoByBatchId"></action>
+		<!-- getPreHandleResultByTime 按时间段查询预处理结果 -->
+		<action name="getPreHandleResultByTime" class="Action.PreProcessResult"
+			method="getPreHandleResultByTime"></action>
+		<!-- getPreHandleResultByPoint 按测点查询预处理结果 -->
+		<action name="getPreHandleResultByPoint" class="Action.PreProcessResult"
+			method="getPreHandleResultByPoint"></action>
+		<!-- getResultByPoint 按id删除预处理批次 -->
+		<action name="deletePreHandleResByBatchId" class="Action.PreProcessResult"
+			method="deletePreHandleResByBatchId"></action>
+		<!-- 确认预处理，将该批次预处理结果写入最终表里 -->
+		<action name="confirmPreHandleBatch" class="Action.PreProcessResult"
+			method="confirmPreHandleBatch"></action>
+		<!-- 修改预处理结果 -->
+		<action name="modifyPreHandleRes" class="Action.PreProcessResult"
+			method="modifyPreHandleRes"></action>
+
+		<!-- getModelName 获取模型名称 预处理模型和预测模型均可调用 -->
+		<action name="getModelName" class="Action.GetModel" method="getModelName"></action>
+
+		<action name="delPrediction" class="Action.SinForcast" method="delPrediction">
+		</action>
+		<action name="prediction" class="Action.SinForcast" method="prediction">
+		</action>
+
+		<action name="getWaterLevel" class="Action.WaterLevel" method="getWaterLevel"></action>
+		<action name="GetIsWhereByMonitorItem" class="Action.GetIsWhereByMonitorItemAction"></action>
+
+		<action name="test" class="Action.Test" method="test"></action>
+		
+		<action name="queryPoints" class="Action.QueryPoint"></action>
+		<action name="getBasicItem" class="Action.QueryPoint" method="getBasicItem"></action>
+		<action name="getMonitor" class="Action.QueryPoint" method="getMonitor"></action>
+		<action name="getInstrType" class="Action.QueryPoint" method="getInstrType"></action>
+		<action name="getObservePoints" class="Action.QueryPoint" method="getObservePoints"></action>
+		<action name="getComponent" class="Action.QueryPoint" method="getComponent"></action>
+	</package>
+
+	<package name="json" extends="json-default">
+
+		<action name="commonPredict" class="Action.CommonPredictAction">
+			<result name="success" type="json"></result>
+		</action>
+
+	</package>
+	<constant name="struts.objectFactory"
+		value="org.apache.struts2.spring.StrutsSpringObjectFactory" />
+	<constant name="struts.i18n.encoding" value="UTF-8" />
+	<constant name="struts.multipart.saveDir" value="/tmp" />
+	<constant name="struts.devMode" value="true" />
+
+	<include file="struts-dataPreDeal.xml"></include>
+	<include file="struts-yuzhi.xml"></include>
+
+</struts> 

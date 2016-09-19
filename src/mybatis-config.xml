@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<settings>
+		<setting name="cacheEnabled" value="false" />
+		<setting name="useGeneratedKeys" value="true" />
+		<setting name="defaultExecutorType" value="REUSE" />
+	</settings>
+	<typeAliases>
+		<typeAlias alias="testrecord" type="Entity.TestRecord"/>
+		<typeAlias alias="t_zb_pz" type="Entity.T_ZB_PZ"/>
+		<typeAlias alias="t_zb_pl" type="Entity.T_ZB_PL"/>
+		<typeAlias alias="t_deal_time" type="Entity.T_DEAL_TIME"/>
+		<typeAlias alias="model_para" type="Entity.MODEL_PARA"/>
+		<typeAlias alias="model_name" type="Entity.MODEL_NAME"/>
+		<typeAlias alias="ins_sort" type="Entity.INS_SORT"/>
+		<typeAlias alias="table_type" type="Entity.TABLE_TYPE"/>
+		<typeAlias alias="single_prediction" type="Entity.SINGLE_PREDICTION"/>
+		<typeAlias alias="t_outlier" type="Entity.T_OUTLIER"/>
+		<typeAlias alias="deftabletype" type="Entity.DEFTABLETYPE"/>
+		<typeAlias alias="definssort" type="Entity.DEFINSSORT"/>
+		<typeAlias alias="t_zb_pl_forehandle" type="Entity.T_ZB_PL_ForeHandle"/>
+		<typeAlias alias="preresult" type="Entity.T_PRE_RESULT"/>
+		<typeAlias alias="t_zb_pl2" type="Entity.T_ZB_PL2"/>
+		<typeAlias alias="t_zb_pl_res" type="Entity.T_ZB_PL_RES"/>
+		<typeAlias alias="t_zb_pl_final" type="Entity.T_ZB_PL_FINAL"/>
+		<typeAlias alias="predict_data" type="Entity.PREDICT_DATA"/>
+		<typeAlias alias="predict_data2" type="Entity.PREDICT_DATA2"/>
+		<typeAlias alias="t_water_level" type="Entity.T_Water_Level"/>
+		<typeAlias alias="deflog" type="Entity.DEFLOG"/>
+		<typeAlias alias="t_sin_pre_auto" type="Entity.T_SIN_PRE_AUTO"/>
+		<typeAlias alias="t_sin_pre" type="Entity.T_SIN_PRE"/>
+		<typeAlias alias="common_prehandle" type="Entity.CommonPreHandle"/>
+		<typeAlias alias="common_prehandle_result" type="Entity.CommonPreHandleResult"/>
+		<typeAlias alias="common_prehandle_final" type="Entity.CommonPreHandleFinal"/>
+		<typeAlias alias="common_prehandle_batch" type="Entity.CommonPreHandleBatch"/>
+		<typeAlias alias="monitor_item_type" type="Entity.MonitorItemType"/>
+		<typeAlias alias="pointInfo" type="Entity.PointInfo"/>
+		
+		<typeAlias alias="modelInfo" type="Entity.ModelRecord"/>
+		<typeAlias alias="modelPointInfo" type="Entity.ModelPoint"/>
+		<typeAlias alias="confHisVal" type="Entity.LSSET"/>
+		<typeAlias alias="detailResultInfo" type="Entity.PointDetailedResultInfo"/>
+		<typeAlias alias="theautoPreInfo" type="Entity.AutoPreInfo"/>
+		<typeAlias alias="thelstzzInfo" type="Entity.LSTZZInfo"/>
+		<typeAlias alias="thresholdConf" type="Entity.ThresholdConf"/>
+		
+		<typeAlias alias="common_predict" type="Entity.CommonPredict"/>
+		<typeAlias alias="mid_characteristic" type="Entity.MidCharacteristic"/>
+		<typeAlias alias="mid_dtcharacteristic" type="Entity.MidDtCharacteristic"/>
+		<typeAlias alias="lstzz_paras" type="Entity.LstzzParas"/>
+		<typeAlias alias="pointValue" type="Entity.PointValue"/>
+		<typeAlias alias="midlstzz_print" type="Entity.MidLstzzPrint"/>
+		<typeAlias alias="data_predicted" type="Entity.DataPredicted"/>
+		<typeAlias alias="sigama" type="Entity.SigamaEntity"/>
+		<typeAlias alias="cenodemetmem_current" type="Entity.W_CENodeMetMem_Current"/>
+		<typeAlias alias="cenodemetmem_log" type="Entity.W_CENodeMetMem_Log"/>
+		
+	</typeAliases>
+</configuration>

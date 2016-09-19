@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IDEFINSSORTDao">
+	<resultMap type="definssort" id="definssort">
+		<result property="designcode" column="designcode"/>
+		<result property="type" column="type"/>
+	</resultMap>
+	<select id="getDesignCode" parameterType="int" resultType="String"> 
+		select designcode from LCRiver_xwdh_1.dbo.definssort where type=#{type}
+		<!-- select designcode from LCRiver_xwdh_1.definssort where type=#{type} -->
+	</select>
+	
+	<select id="getPoint" parameterType="map" resultMap="definssort">
+		select distinct designcode FROM LCRiver_xwdh_1.dbo.definssort where type=#{type} 
+		and designcode like '%'+#{dam}+'%'+#{title}+'%'
+	</select>
+	<select id="getPointByTableName" parameterType="String" resultMap="definssort">
+		select * FROM LCRiver_xwdh_1.dbo.definssort where type=
+			(select top 1 type from LCRiver_xwdh_1.dbo.DefTableType where [table] = #{tableName})
+	</select>
+	
+	<select id="getImportantPoint" parameterType="String" resultMap="definssort">
+		select Instr_No as designCode,oId as type from [LCRiver_xwdh_1].[dbo].[PointInfo] 
+			where MonitorItem = #{tableName}
+				and ((ImportantPoint is not null and IsWhere is not null)
+ 					or Instr_No in (
+						'C4-Lb-IP-01',
+						'C4-Ld-IP-01',
+						'C4-Le-IP-01',
+						'C4-Rb-IP-01',
+						'C4-Rd-IP-01',
+						'C4-Re-IP-01'
+					))
+	</select>
+	
+	<select id="getImportantPointByPoint" resultMap="definssort">
+		select Instr_No as designCode,oId as type from [LCRiver_xwdh_1].[dbo].[PointInfo] 
+			where MonitorItem = #{tableName} and isCaculated = 1 
+	</select>
+</mapper>

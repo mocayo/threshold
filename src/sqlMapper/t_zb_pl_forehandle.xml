@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="Dao.IT_ZB_PL_ForeHandleDao">
+	<resultMap type="t_zb_pl_forehandle" id="t_zb_pl_forehandle">
+		<id property="instr_no" column="instr_no"/>
+		<id property="dt" column="dt"/>
+		<result property="displace_x" column="displace_x"/>
+		<result property="displace_y" column="displace_y"/>
+		<result property="handle_time" column="handle_time"/>
+		<result property="handle_result" column="handle_result"/>
+		<result property="people_handle" column="people_handle"/>
+	</resultMap>
+	<select id="getForeHandle_Time" parameterType="String" resultType="String">
+		<!-- select * from LCRiver_xwdh_2.t_zb_pl where instr_no = #{instr_no} and handle_time in 
+		(select max(handle_time) from LCRiver_xwdh_2.t_zb_pl  where instr_no = #{instr_no} group by instr_no) -->
+		select max(handle_time) from LCRiver_xwdh_2.dbo.t_zb_pl  where instr_no = #{instr_no}
+	</select>
+	
+	<update id="modifyForeHandleResult" parameterType="map">
+			<!-- update  LCRiver_xwdh_2.t_zb_pl set people_handle =#{result}
+			where instr_no=#{instr_no} and handle_time=#{forehandle_time} -->
+			update  LCRiver_xwdh_2.dbo.t_zb_pl set people_handle =#{result}
+			where instr_no=#{instr_no} and handle_time=#{forehandle_time}
+	</update>
+	
+	<select id="getForeHandleModifyResult" parameterType="map" resultType="String">
+		<!-- select distinct handle_time from LCRiver_xwdh_2.t_zb_pl where handle_time between #{starttime} and #{endtime}  
+		and people_handle is not null order by handle_time desc -->
+		select distinct handle_time from LCRiver_xwdh_2.dbo.t_zb_pl where handle_time between #{starttime} and #{endtime}  
+		 and people_handle is not null order by handle_time desc
+	</select>
+	
+	<select id="queryForeHandleModifyResult" parameterType="String" resultMap="t_zb_pl_forehandle">
+		<!-- select * from LCRiver_xwdh_2.t_zb_pl where handle_time =#{timestamp} -->
+		select * from LCRiver_xwdh_2.dbo.t_zb_pl where handle_time =#{timestamp}
+	</select>
+	
+	
+	<select id="getDataXByIdTm" parameterType="map" resultMap="t_zb_pl_forehandle">	
+		select * from [LCRiver_xwdh_2].[dbo].[T_ZB_PL] where INSTR_NO = #{id} 
+			and DISPLACE_X is not null and DT &gt;= #{startTime} and DT &lt;= #{endTime}
+	</select>
+	
+	<select id="getDataYByIdTm" parameterType="map" resultMap="t_zb_pl_forehandle">	
+		select * from [LCRiver_xwdh_2].[dbo].[T_ZB_PL] where INSTR_NO = #{id} 
+			and DISPLACE_Y is not null and DT &gt;= #{startTime} and DT &lt;= #{endTime}
+	</select>
+	
+</mapper>
