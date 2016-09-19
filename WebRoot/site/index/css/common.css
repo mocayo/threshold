@@ -1,0 +1,276 @@
+@charset "utf-8";
+/*——————————————————————日期start——————————————————————————————*/
+.calendar {
+	padding: 5px;
+	overflow: hidden;
+	text-align: center;
+}
+/*月份的上下翻页*/
+.calendar-year {
+	color: #333333;
+	text-align: center;
+	font-size: 13px;
+	font-weight: bold;
+	margin: 0;
+	padding-top: 5px;
+}
+.calendar-year a{
+}
+/*月*/
+.calendar-months {
+	overflow:hidden;
+	position: relative;
+	height: 35px;
+	margin-left: 15px;
+	margin-right: 15px;
+}
+.calendar-months ul {
+	position: absolute;
+	width: 100%;	
+	overflow-x:auto;
+	margin: 0;
+	padding: 0;
+	font-size: 0;
+}
+.calendar-months ul li {
+	display: inline-block;
+	font-size: 16px;
+	height:32px;
+	line-height:32px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	ms-box-sizing: border-box;
+	width: 14.28571428571429%;
+}
+.calendar-months ul li:hover, .calendar-months ul li.months-cur {
+	color: #2f87c1;
+}
+.calendar-btn{
+	text-decoration:none;
+	font-size:22px;
+	color:#979797;
+}
+.calendar-btn:hover{
+	color:#2f87c1
+}
+.calendar-btn-l {
+	float:left;
+	margin-left: -10px;	
+	padding: 5px 3px 5px 10px;
+}
+.calendar-btn-r {
+	float:right;
+	margin-right: -10px;
+	padding: 5px 10px 5px 0px;
+}
+/*日期中的天*/
+.calendar-day {
+	overflow: hidden
+}
+/*星期一到日*/
+.week {
+	text-align: left;
+	display: inline-table;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 0;
+	overflow: hidden;
+	width: 100%;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	ms-box-sizing: border-box;
+}
+.week li {
+	margin-left: -1px;
+	font-size: 12px;
+	height: 100%;
+	display: inline-block;
+	width: 14.28571428571429%;
+	text-align: center;
+	color: #333;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	ms-box-sizing: border-box;
+}
+.week li:nth-child(7n) {
+}
+/*加边框*/
+.week-b {
+	border: 1px solid #bcbcbc;
+}
+.week-b li {
+	border-left: 1px solid #bcbcbc;
+}
+.week-hd {
+	height: 35px;
+	line-height: 35px;
+}
+.week-hd li:first-of-type, 
+.week-hd li:last-of-type ,
+.week-day li:first-of-type,
+.week-day li:last-of-type{
+	 
+}
+/*每一天的样式*/
+.week-day {
+	border-bottom: 0;
+}
+.week-day li {
+	height: 40px;
+	padding: 5px 0;
+	vertical-align: middle;
+}
+.week-day li p {
+	margin: 0;
+	padding-top: 5px;
+	font-size: 14px;
+}
+.week-day li.duty-full p {/*自己的值班日*/
+	cursor: pointer;
+	color: red;
+}
+.week-day li.duty-cur span {/*当前值班日*/
+	background-color: #3498db;
+	border-radius: 50%;
+	padding: 3px;
+	display: inline-block;
+	width: 25px;
+	color: #fff;
+	cursor: pointer;
+}
+.week-day-b li {
+	border-bottom: 1px solid #bcbcbc;
+}
+/*——————————————————————日期end——————————————————————————————*/
+.title-full {
+	border-top: 1px solid #bcbcbc;
+	border-bottom: 1px solid #bcbcbc;
+	background-color: #fff;
+	padding: 10px;
+	font-size: 18px;
+}
+.duty-box {
+	padding: 8px 10px 10px;
+}
+.duty-box > p {
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+.duty-box > p > span {
+	width: 80px;
+	text-align: right;
+	display: inline-block;
+}
+.duty-box > p > b {
+	font-weight: normal;
+	padding-right: 5px;
+}
+.duty-box >a {
+	clear: left;
+	display: block;
+	margin-top: 10px;
+	border: 1px solid #bcbcbc;
+	background: #ffffff;
+	text-align: center;
+	color: #333;
+	text-decoration: none;
+	padding:5px;
+	font-size: 18px;
+}
+.duty-box >a:hover {
+	border: 1px solid #2f87c1;
+	color: #2f87c1
+}
+@font-face {
+	font-family: 'calendar';
+	src:    url('fonts/calendar.eot?eju062');
+	src:    url('fonts/calendar.eot?eju062#iefix') format('embedded-opentype'),
+	url('fonts/calendar.ttf?eju062') format('truetype'),
+	url('fonts/calendar.woff?eju062') format('woff'),
+	url('fonts/calendar.svg?eju062#calendar') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	font-family: 'calendar' !important;
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-tfsj:before {
+	content: "\e900";
+}
+.icon-phone-24:before {
+	content: "\e901";
+}
+.icon-pencil:before {
+	content: "\e902";
+}
+.icon-journal:before {
+	content: "\e903";
+}
+.icon-date:before {
+	content: "\e904";
+}
+.icon-file:before {
+	content: "\e905";
+}
+.icon-clip:before {
+	content: "\e906";
+}
+.icon-file-excel:before {
+	content: "\e907";
+}
+.icon-magnifier:before {
+	content: "\e908";
+}
+.icon-triangle-n:before {
+	content: "\e909";
+}
+.icon-triangle-e:before {
+	content: "\e90a";
+}
+.icon-triangle-s:before {
+	content: "\e90b";
+}
+.icon-triangle-w:before {
+	content: "\e90c";
+}
+.icon-arrow-w:before {
+	content: "\e90d";
+}
+.icon-arrow-e:before {
+	content: "\e90e";
+}
+.icon-alarmclock:before {
+	content: "\e90f";
+}
+.icon-paperclip:before {
+	content: "\e910";
+}
+.icon-triangle-w:before {
+	content: "\e90c";
+}
+.icon-arrow-w:before {
+	content: "\e90d";
+}
+.icon-arrow-e:before {
+	content: "\e90e";
+}
+.icon-alarmclock:before {
+	content: "\e90f";
+}
+.icon-paperclip:before {
+	content: "\e910";
+}

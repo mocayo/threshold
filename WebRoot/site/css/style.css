@@ -1,0 +1,64 @@
+/* body{
+    background-color: #C7EDCC !important;
+}
+#page-wrapper{
+    background-color: #C7EDCC !important;
+} */
+nav#side_bar {
+    background-color: #4A6C96 !important;
+    border-bottom: 3px solid #7CA7DC;
+}
+#side_bar a.navbar-brand {
+    color: #F5F5F5;
+}
+.navbar-default.sidebar {
+    background-color: #FDFDFD;
+
+}
+#side-menu li.active > a,#side-menu li:hover > a,.sidebar ul li a.active {
+	color: #FEFEFE;
+    background-color: #3D86B1;
+}
+#side-menu ul a.active,#side-menu ul a:hover {
+color: #FEFEFE;
+    background-color: #6FB1D8;
+}
+.navbar-default.sidebar a {
+	color: #333;
+}
+.sidebar {
+    margin-top: 53px;
+}
+.sidebar ul li {
+    border-bottom: 0;
+}
+#page-wrapper {
+    border-left: 0;
+    padding: 0 10px;
+}
+.panel.panel-default {
+    border-color: #439ABB;
+}
+.panel .panel-body {
+    background-color: #FEFEFE;
+}
+.panel-body .panel-heading {
+    background-color: #439ABB;
+}
+.panel-body .panel-heading a {
+    color: #FDFDFD;
+}
+#wrapper{
+	/* background:url('../css/img/moca.jpg');
+	background-size:cover; */
+	background-color: /* #DAE3E0 */ /* #DDF0ED  *//* #E4F4F5 */#DDF0ED;
+}
+#page-wrapper{
+	background-color: #DDF0ED;
+	/* background:url('../css/img/moca.jpg'); */
+	/* background-size:cover; */
+}
+#sidebar{
+	background-color: #E1FFFF;
+	background-color: #DDF0ED;
+}
